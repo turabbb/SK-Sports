@@ -34,3 +34,6 @@ mongoose.connect(process.env.DB_URL)
     .catch(error => {
         console.error("Database connection error:", error);
     });
+
+
+    //Heres a comment I added to check the commit.
