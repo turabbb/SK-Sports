@@ -1,4 +1,4 @@
-const generateToken = require("../middleware/authMiddleware");
+const {generateToken} = require("../middleware/authMiddleware");
 const User = require("../Models/Users");
 
 // User Login
@@ -13,7 +13,7 @@ const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).send({ Error: "Invalid credentials" });
         }
-        const token = await generateToken(user.id);
+        const token = await generateToken(user._id);
         res.cookie("token", token, { httpOnly: true, sameSite: "None", secure: true });
         res.status(200).send({ Message: "Login successful", user, token });
     } catch (error) {
