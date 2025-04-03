@@ -19,9 +19,22 @@ const generateToken = async (id) => {
 
 const verifyToken = async (req,res,next) => {
     try {
-        
+        const token = req.cookies.token;
+        if(!token){
+            return res.status(401).send({message: "Unauthorized"});
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if(!decoded){
+            return res.status(401).send({message: "Unauthorized"});
+        }
+
+        req.userId = decoded.id;
+        req.userRole = decoded.role;
+        next();
     } catch (error) {
-        
+        console.error('Token verification error:', error);
+        return res.status(401).send({message: "Unauthorized"});
     }
 }
 
