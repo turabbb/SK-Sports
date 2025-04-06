@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLoginUserMutation } from '../Redux/Features/Auth/Auth';
 
 const Login = () => {
@@ -13,6 +13,7 @@ const Login = () => {
     const [loginUser, { isLoading: loginLoading }] = useLoginUserMutation();
 
 
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -21,7 +22,9 @@ const Login = () => {
 
         try {
             const response = await loginUser(data).unwrap();
-            console.log(response);
+            //console.log(response);
+            alert("Login Successfull");
+            navigate('/');
         } catch (error) {
             setMessage("Please provide a valid email and password");
         }
