@@ -19,13 +19,13 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         const data = { email, password };
-        console.log(data);
+        //console.log(data);
 
         try {
             const response = await loginUser(data).unwrap();
-            //console.log(response);
-            //const {token, user} = response;
-            //dispatch(setUser({user}));
+            console.log(response);
+            const {token, user} = response;
+            dispatch(setUser({user}));
             alert("Login Successfull");
             navigate('/');
         } catch (error) {
