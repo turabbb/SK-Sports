@@ -21,7 +21,7 @@ const verifyToken = async (req,res,next) => {
             return res.status(401).send({message: "Unauthorized"});
         }
 
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(!decoded){
             return res.status(401).send({message: "Unauthorized"});
         }

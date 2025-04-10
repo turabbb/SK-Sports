@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const userRoutes = require("./src/Routes/UserRoute");
+const productRoutes = require("./src/Routes/Products");
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // Routes
 app.use("/api/auth", userRoutes);
+app.use("/api/products", productRoutes);
 
 // Test route
 app.get("/", (req, res) => {
