@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import products from '../../../data/products.json';
+import { useDispatch } from 'react-redux';
+import { 
+  useFetchProductsByIdQuery, 
+  useFetchAllProductsQuery 
+} from '../../../Redux/Features/Products/products';
+import { addToCart } from '../../../Redux/Features/Cart/CartSlice';
 
 const SingleProduct = () => {
     const { id } = useParams();
@@ -8,32 +13,62 @@ const SingleProduct = () => {
     const [quantity, setQuantity] = useState(1);
     const [isHovered, setIsHovered] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [relatedProducts, setRelatedProducts] = useState([]);
 
+    const dispatch = useDispatch();
+
+    const HandleAddToCart = (product) => {
+        dispatch(addToCart({
+            ...product,
+            quantity,
+            selectedSize: selectedSize || 'M', // Default to M if no size selected
+        }));
+    }
+    
+    // Log the ID for debugging
+    useEffect(() => {
+        console.log("Product ID:", id);
+    }, [id]);
+    
+    // Scroll to top when component mounts or ID changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, [id]);
+    }, [id]);
+    
+    // Make the API call for the main product
+    const { data, error, isLoading } = useFetchProductsByIdQuery(id, {
+        skip: !id // Skip the query if no ID is provided
+    });
+    
+    // Use optional chaining for safety
+    const singleProduct = data?.product || {};
+    console.log("Single Product Data:", singleProduct);
 
-    // Convert id to number since it comes as string from URL params
-    const product = products.find(p => p.id === parseInt(id));
+    // Fetch all products to filter for related ones
+    const { data: allProductsData } = useFetchAllProductsQuery({
+        category: '',  // We'll filter client-side based on the current product's category
+        limit: 100     // Fetch a larger set to have enough related products
+    }, {
+        skip: !singleProduct?.category // Only fetch when we know the current product's category
+    });
 
-    // Find related products based on category or description
-    const relatedProducts = products.filter(
-        (p) =>
-            p.id !== product.id && // Exclude the current product
-            (p.category === product.category || p.description.includes(product.description))
-    );
-
-    // Default sizes array since it's not in your data
-    const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
-
-    const handleAddToCart = () => {
-        if (!selectedSize) {
-            alert('Please select a size');
-            return;
+    // Update related products when singleProduct or allProductsData changes
+    useEffect(() => {
+        if (singleProduct?.category && allProductsData?.products) {
+            // Filter products by matching category and exclude the current product
+            const related = allProductsData.products
+                .filter(product => 
+                    product.category === singleProduct.category && 
+                    product._id !== singleProduct._id
+                )
+                .slice(0, 4); // Limit to 4 related products
+            
+            setRelatedProducts(related);
+            console.log("Related Products:", related);
         }
-        // Add to cart logic here
-    };
+    }, [singleProduct, allProductsData]);
 
+    // Handle mouse movement for zoom effect
     const handleMouseMove = (e) => {
         const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
         const x = ((e.pageX - left) / width) * 100;
@@ -41,12 +76,22 @@ const SingleProduct = () => {
         setPosition({ x, y });
     };
 
-    if (!product) {
-        return (
-            <div className="section__container">
-                <h2>Product not found</h2>
-            </div>
-        );
+    // Default sizes array since it's not in your data
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+    
+    // Render loading state
+    if (isLoading) {
+        return <div className="section__container">Loading...</div>;
+    }
+    
+    // Render error state
+    if (error) {
+        return <div className="section__container">Error loading product: {error.message || 'Unknown error'}</div>;
+    }
+    
+    // Render if no ID or product not found
+    if (!id || !singleProduct || Object.keys(singleProduct).length === 0) {
+        return <div className="section__container">Product not found</div>;
     }
 
     return (
@@ -71,8 +116,8 @@ const SingleProduct = () => {
                             onMouseMove={handleMouseMove}
                         >
                             <img
-                                src={product.image}
-                                alt={product.name}
+                                src={singleProduct.image}
+                                alt={singleProduct.name}
                                 className="w-full h-full object-contain transition-transform duration-300 cursor-zoom-in"
                                 style={{
                                     transform: isHovered ? 'scale(2)' : 'scale(1)',
@@ -84,31 +129,31 @@ const SingleProduct = () => {
 
                     {/* Right Column - Product Details */}
                     <div className="space-y-6">
-                        <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">{singleProduct.name}</h1>
 
                         {/* Rating */}
                         <div className="flex items-center gap-2">
                             <div className="flex text-yellow-400">
                                 {[...Array(5)].map((_, i) => (
-                                    <i key={i} className={`ri-star-${i < Math.floor(product.rating) ? 'fill' : 'line'}`}></i>
+                                    <i key={i} className={`ri-star-${i < Math.floor(singleProduct.rating || 0) ? 'fill' : 'line'}`}></i>
                                 ))}
                             </div>
-                            <span className="text-sm text-gray-500">({product.rating} rating)</span>
+                            <span className="text-sm text-gray-500">({singleProduct.rating || 0} rating)</span>
                         </div>
 
                         {/* Price */}
                         <div className="text-2xl font-bold text-primary">
-                            Rs. {product.price?.toLocaleString()}
-                            {product.oldPrice && (
+                            Rs. {singleProduct.price?.toLocaleString() || 0}
+                            {singleProduct.oldPrice && (
                                 <span className="ml-2 text-gray-500 text-lg line-through">
-                                    Rs. {product.oldPrice?.toLocaleString()}
+                                    Rs. {singleProduct.oldPrice?.toLocaleString()}
                                 </span>
                             )}
                         </div>
 
                         {/* Description */}
                         <p className="text-gray-600">
-                            {product.description}
+                            {singleProduct.description || 'No description available'}
                         </p>
 
                         {/* International Shipping Note */}
@@ -159,7 +204,10 @@ const SingleProduct = () => {
                                 </button>
                             </div>
                             <button
-                                onClick={handleAddToCart}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    HandleAddToCart(singleProduct);
+                                }}
                                 className="flex-1 bg-primary text-white py-2 px-6 rounded-md hover:bg-primary-dark transition-colors"
                             >
                                 ADD TO CART
@@ -178,14 +226,14 @@ const SingleProduct = () => {
                         <div className="pt-6 border-t space-y-2 text-sm">
                             <p>
                                 <span className="font-medium">Category:</span>{' '}
-                                <Link to={`/category/${product.category}`} className="text-gray-600 hover:text-primary">
-                                    {product.category}
+                                <Link to={`/category/${singleProduct.category}`} className="text-gray-600 hover:text-primary">
+                                    {singleProduct.category || 'Uncategorized'}
                                 </Link>
                             </p>
-                            {product.color && (
+                            {singleProduct.color && (
                                 <p>
                                     <span className="font-medium">Color:</span>{' '}
-                                    <span className="text-gray-600">{product.color}</span>
+                                    <span className="text-gray-600">{singleProduct.color}</span>
                                 </p>
                             )}
                         </div>
@@ -213,20 +261,36 @@ const SingleProduct = () => {
                         <h2 className="text-2xl font-bold text-gray-900 mb-12">Related Products</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {relatedProducts.map((relatedProduct) => (
-                                <Link key={relatedProduct.id} to={`/sports/${relatedProduct.id}`} className="block">
+                                <Link key={relatedProduct._id} to={`/sports/${relatedProduct._id}`} className="block">
                                     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                        <img
-                                            src={relatedProduct.image}
-                                            alt={relatedProduct.name}
-                                            className="w-full h-48 object-cover"
-                                        />
+                                        <div className="h-48 overflow-hidden">
+                                            <img
+                                                src={relatedProduct.image}
+                                                alt={relatedProduct.name}
+                                                className="w-full h-full object-cover transition-transform hover:scale-110 duration-300"
+                                            />
+                                        </div>
                                         <div className="p-4">
-                                            <h3 className="text-lg font-semibold text-gray-900">{relatedProduct.name}</h3>
-                                            <p className="text-gray-600">{relatedProduct.description}</p>
+                                            <h3 className="text-lg font-semibold text-gray-900 truncate">{relatedProduct.name}</h3>
+                                            <p className="text-gray-600 h-12 overflow-hidden text-sm">{relatedProduct.description}</p>
                                             <div className="mt-4 flex items-center justify-between">
                                                 <span className="text-lg font-bold text-primary">
                                                     Rs. {relatedProduct.price?.toLocaleString()}
                                                 </span>
+                                                <button 
+                                                    className="p-2 rounded-full bg-gray-100 hover:bg-primary hover:text-white transition-colors"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        dispatch(addToCart({
+                                                            ...relatedProduct,
+                                                            quantity: 1,
+                                                            selectedSize: 'M'
+                                                        }));
+                                                    }}
+                                                >
+                                                    <i className="ri-shopping-cart-line"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

@@ -16,7 +16,7 @@ const ProductCards = ({ products }) => {
       {products.map((product, index) => (
         <div key={index} className="product__card relative">
           <div className="relative">
-            <Link to={`/sports/${product.id}`}>
+            <Link to={`/sports/${product._id}`}>
               <img
                 src={product.image}
                 alt="product image"
