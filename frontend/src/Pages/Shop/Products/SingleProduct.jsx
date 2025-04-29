@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useFetchProductsByIdQuery, useFetchAllProductsQuery } from '../../../Redux/Features/Products/products';
 import { addToCart } from '../../../Redux/Features/Cart/CartSlice';
@@ -8,88 +8,58 @@ const SingleProduct = () => {
     const { id } = useParams();
     const [selectedSize, setSelectedSize] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [isHovered, setIsHovered] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [relatedProducts, setRelatedProducts] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalImageSrc, setModalImageSrc] = useState('');
+
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const HandleAddToCart = (product) => {
-        dispatch(addToCart({
-            ...product,
-            quantity,
-            selectedSize: selectedSize || 'M', // Default to M if no size selected
-        }));
-    }
-    
-    // Log the ID for debugging
-    useEffect(() => {
-        console.log("Product ID:", id);
-    }, [id]);
-    
-    // Scroll to top when component mounts or ID changes
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [id]);
-    
-    // Make the API call for the main product
-    const { data, error, isLoading } = useFetchProductsByIdQuery(id, {
-        skip: !id // Skip the query if no ID is provided
-    });
-    
-    // Use optional chaining for safety
+    const { data, error, isLoading } = useFetchProductsByIdQuery(id, { skip: !id });
     const singleProduct = data?.product || {};
-    console.log("Single Product Data:", singleProduct);
 
-    // Fetch all products to filter for related ones
-    const { data: allProductsData } = useFetchAllProductsQuery({
-        category: '',  // We'll filter client-side based on the current product's category
-        limit: 100     // Fetch a larger set to have enough related products
-    }, {
-        skip: !singleProduct?.category // Only fetch when we know the current product's category
+    const { data: allProductsData } = useFetchAllProductsQuery({ category: '', limit: 100 }, {
+        skip: !singleProduct?.category
     });
 
-    // Update related products when singleProduct or allProductsData changes
+    const [relatedProducts, setRelatedProducts] = useState([]);
+
     useEffect(() => {
         if (singleProduct?.category && allProductsData?.products) {
-            // Filter products by matching category and exclude the current product
             const related = allProductsData.products
-                .filter(product => 
-                    product.category === singleProduct.category && 
-                    product._id !== singleProduct._id
-                )
-                .slice(0, 4); // Limit to 4 related products
-            
+                .filter(product => product.category === singleProduct.category && product._id !== singleProduct._id)
+                .slice(0, 4);
             setRelatedProducts(related);
-            console.log("Related Products:", related);
         }
     }, [singleProduct, allProductsData]);
 
-    // Handle mouse movement for zoom effect
-    const handleMouseMove = (e) => {
-        const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-        const x = ((e.pageX - left) / width) * 100;
-        const y = ((e.pageY - top) / height) * 100;
-        setPosition({ x, y });
+    const handleAddToCart = (product) => {
+        dispatch(addToCart({
+            ...product,
+            quantity,
+            selectedSize: selectedSize || 'M',
+        }));
+        navigate('/cart');
     };
 
-    // Default sizes array since it's not in your data
+    const handlePrevImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === 0 ? singleProduct.image.length - 1 : prevIndex - 1
+        );
+    };
+
+    const handleNextImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === singleProduct.image.length - 1 ? 0 : prevIndex + 1
+        );
+    };
+
     const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
-    
-    // Render loading state
-    if (isLoading) {
-        return <div className="section__container">Loading...</div>;
-    }
-    
-    // Render error state
-    if (error) {
-        return <div className="section__container">Error loading product: {error.message || 'Unknown error'}</div>;
-    }
-    
-    // Render if no ID or product not found
-    if (!id || !singleProduct || Object.keys(singleProduct).length === 0) {
-        return <div className="section__container">Product not found</div>;
-    }
+
+    if (isLoading) return <div className="section__container">Loading...</div>;
+    if (error) return <div className="section__container">Error loading product: {error.message || 'Unknown error'}</div>;
+    if (!id || !singleProduct || Object.keys(singleProduct).length === 0) return <div className="section__container">Product not found</div>;
 
     return (
         <>
@@ -102,33 +72,92 @@ const SingleProduct = () => {
                 </div>
             </section>
 
-            <section className='section__container py-12'>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    {/* Left Column - Image */}
-                    <div className="space-y-6">
-                        <div
-                            className="relative overflow-hidden rounded-lg bg-gray-50 h-[600px]"
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
-                            onMouseMove={handleMouseMove}
+            {isModalOpen && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsModalOpen(false)}
+                >
+                    <div
+                        className="relative max-w-4xl w-full h-[80vh] p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            className="absolute top-4 right-4 text-white text-3xl hover:text-red-400"
+                            onClick={() => setIsModalOpen(false)}
                         >
+                            &times;
+                        </button>
+
+                        <div className="w-full h-full overflow-hidden group relative">
                             <img
-                                src={singleProduct.image}
-                                alt={singleProduct.name}
-                                className="w-full h-full object-contain transition-transform duration-300 cursor-zoom-in"
-                                style={{
-                                    transform: isHovered ? 'scale(2)' : 'scale(1)',
-                                    transformOrigin: `${position.x}% ${position.y}%`,
-                                }}
+                                src={modalImageSrc}
+                                alt="Zoomed"
+                                className="w-full h-full object-contain transform group-hover:scale-150 transition-transform duration-300 cursor-zoom-out"
+                                style={{ transitionTimingFunction: 'ease-in-out' }}
                             />
                         </div>
                     </div>
+                </div>
+            )}
 
-                    {/* Right Column - Product Details */}
+            <section className='section__container py-12'>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    {/* Left - Carousel Image */}
+                    <div className="relative space-y-4">
+                        <div className="overflow-hidden relative h-[600px] bg-gray-50 rounded-lg">
+                            <img
+                                src={singleProduct.image[currentImageIndex]}
+                                alt={singleProduct.name}
+                                className="w-full h-full object-contain cursor-zoom-in"
+                                onClick={() => {
+                                    setModalImageSrc(singleProduct.image[currentImageIndex]);
+                                    setIsModalOpen(true);
+                                }}
+                            />
+
+                            {singleProduct.image.length > 1 && (
+                                <>
+                                    <button
+                                        className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 px-3 py-2 rounded-r shadow"
+                                        onClick={handlePrevImage}
+                                    >
+                                        <i className="ri-arrow-left-s-line text-xl"></i>
+                                    </button>
+                                    <button
+                                        className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100 px-3 py-2 rounded-l shadow"
+                                        onClick={handleNextImage}
+                                    >
+                                        <i className="ri-arrow-right-s-line text-xl"></i>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Thumbnails */}
+                        {singleProduct.image.length > 1 && (
+                            <div className="flex space-x-2">
+                                {singleProduct.image.map((img, index) => (
+                                    <img
+                                        key={index}
+                                        src={img}
+                                        alt={`Thumbnail ${index + 1}`}
+                                        onClick={() => {
+                                            setCurrentImageIndex(index);
+                                            setModalImageSrc(singleProduct.image[index]);
+                                            setIsModalOpen(true);
+                                        }}
+
+                                        className={`w-20 h-20 object-cover border-2 rounded cursor-pointer ${currentImageIndex === index ? 'border-primary' : 'border-transparent'}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right - Product Info */}
                     <div className="space-y-6">
                         <h1 className="text-3xl font-bold text-gray-900">{singleProduct.name}</h1>
 
-                        {/* Rating */}
                         <div className="flex items-center gap-2">
                             <div className="flex text-yellow-400">
                                 {[...Array(5)].map((_, i) => (
@@ -138,7 +167,6 @@ const SingleProduct = () => {
                             <span className="text-sm text-gray-500">({singleProduct.rating || 0} rating)</span>
                         </div>
 
-                        {/* Price */}
                         <div className="text-2xl font-bold text-primary">
                             Rs. {singleProduct.price?.toLocaleString() || 0}
                             {singleProduct.oldPrice && (
@@ -148,17 +176,13 @@ const SingleProduct = () => {
                             )}
                         </div>
 
-                        {/* Description */}
-                        <p className="text-gray-600">
-                            {singleProduct.description || 'No description available'}
-                        </p>
+                        <p className="text-gray-600">{singleProduct.description || 'No description available'}</p>
 
-                        {/* International Shipping Note */}
-                        <p className="text-gray-600 ">
+                        <p className="text-gray-600">
                             Shipping internationally available. Please contact us on WhatsApp for details and customization options.
                         </p>
 
-                        {/* Size Selection */}
+                        {/* Sizes */}
                         <div className="space-y-3">
                             <label className="block text-sm font-medium text-gray-700">Size:</label>
                             <div className="flex flex-wrap gap-2">
@@ -166,8 +190,8 @@ const SingleProduct = () => {
                                     <button
                                         key={size}
                                         className={`px-4 py-2 border rounded-md transition-all ${selectedSize === size
-                                                ? 'border-primary bg-primary text-white'
-                                                : 'border-gray-300 hover:border-primary'
+                                            ? 'border-primary bg-primary text-white'
+                                            : 'border-gray-300 hover:border-primary'
                                             }`}
                                         onClick={() => setSelectedSize(size)}
                                     >
@@ -177,7 +201,7 @@ const SingleProduct = () => {
                             </div>
                         </div>
 
-                        {/* Quantity and Add to Cart */}
+                        {/* Quantity & Cart */}
                         <div className="flex items-center gap-4">
                             <div className="flex items-center border rounded-md">
                                 <button
@@ -203,7 +227,7 @@ const SingleProduct = () => {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    HandleAddToCart(singleProduct);
+                                    handleAddToCart(singleProduct);
                                 }}
                                 className="flex-1 bg-primary text-white py-2 px-6 rounded-md hover:bg-primary-dark transition-colors"
                             >
@@ -211,15 +235,7 @@ const SingleProduct = () => {
                             </button>
                         </div>
 
-                        {/* Wishlist and Size Guide */}
-                        <div className="flex items-center gap-6 text-sm">
-                            <button className="flex items-center gap-2 text-gray-600 hover:text-primary">
-                                <i className="ri-ruler-line"></i>
-                                Size Guide
-                            </button>
-                        </div>
-
-                        {/* Product Meta */}
+                        {/* Meta Info */}
                         <div className="pt-6 border-t space-y-2 text-sm">
                             <p>
                                 <span className="font-medium">Category:</span>{' '}
@@ -235,7 +251,7 @@ const SingleProduct = () => {
                             )}
                         </div>
 
-                        {/* Share Buttons */}
+                        {/* Social */}
                         <div className="flex items-center gap-4 pt-6 border-t">
                             <span className="text-sm font-medium">Share:</span>
                             <div className="flex gap-2">
@@ -252,7 +268,7 @@ const SingleProduct = () => {
                     </div>
                 </div>
 
-                {/* Related Products Section */}
+                {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <div className="mt-24">
                         <h2 className="text-2xl font-bold text-gray-900 mb-12">Related Products</h2>
@@ -262,7 +278,7 @@ const SingleProduct = () => {
                                     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                                         <div className="h-48 overflow-hidden">
                                             <img
-                                                src={relatedProduct.image}
+                                                src={relatedProduct.image[0]}
                                                 alt={relatedProduct.name}
                                                 className="w-full h-full object-cover transition-transform hover:scale-110 duration-300"
                                             />
@@ -274,7 +290,7 @@ const SingleProduct = () => {
                                                 <span className="text-lg font-bold text-primary">
                                                     Rs. {relatedProduct.price?.toLocaleString()}
                                                 </span>
-                                                <button 
+                                                <button
                                                     className="p-2 rounded-full bg-gray-100 hover:bg-primary hover:text-white transition-colors"
                                                     onClick={(e) => {
                                                         e.preventDefault();

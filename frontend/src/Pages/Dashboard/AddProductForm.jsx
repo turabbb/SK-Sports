@@ -1,157 +1,159 @@
-import { useState } from "react";
-import { useAddProductMutation } from "../../Redux/Features/Products/products";
-import { useDispatch } from "react-redux";
-import { toast } from "react-toastify"; // If you want to show toast notifications
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAddProductMutation } from '../../Redux/Features/Products/products';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddProductForm = () => {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [color, setColor] = useState("");
-  const [images, setImages] = useState([]); // Changed to accept multiple images
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [color, setColor] = useState('');
+  const [rating, setRating] = useState(0); // New state for rating
+  const [images, setImages] = useState([]);
+  const [addProduct, { isLoading }] = useAddProductMutation();
 
-  const [addProduct] = useAddProductMutation(); // Redux Toolkit Mutation
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(prevImages => [...prevImages, ...files]);
+  };
+
+  const handleImageDelete = (index) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !category || !price || images.length === 0) {
+    if (!name || !price || images.length === 0) {
       toast.error("Please fill in all required fields and upload at least one image!");
       return;
     }
 
-    setIsLoading(true);
-
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("category", category);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("color", color);
-    
-    // Loop through all the images and append them to the formData
-    images.forEach(image => {
-      formData.append("image", image); // Each image is appended as "image" field
-    });
+    formData.append('name', name);
+    formData.append('category', category);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('color', color);
+    formData.append('rating', rating); // Append the rating
+    images.forEach((image) => formData.append('image', image));
 
     try {
-      // Call the mutation to add the product
-      const result = await addProduct(formData).unwrap();
+      await addProduct(formData).unwrap();
       toast.success("Product added successfully!");
-      console.log(result);
+      navigate('/admin/products');  // Navigate to the admin products page
     } catch (error) {
       toast.error("Failed to add product.");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleImageChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setImages(selectedFiles); // Update the images state with the selected files
-  };
-
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Add New Product</h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Product Name</label>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col space-y-3">
+          <label className="text-lg font-semibold text-gray-700">Product Name</label>
           <input
             type="text"
-            placeholder="Enter product name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-4 py-2 border rounded-md"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             required
           />
         </div>
 
-        {/* Category */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Category</label>
+        <div className="flex flex-col space-y-3">
+          <label className="text-lg font-semibold text-gray-700">Category</label>
           <input
             type="text"
-            placeholder="Enter category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 border rounded-md"
-            required
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
+      </div>
 
-        {/* Description */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Description</label>
-          <textarea
-            placeholder="Enter product description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="px-4 py-2 border rounded-md"
-          />
-        </div>
+      <div className="flex flex-col space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          rows="4"
+        />
+      </div>
 
-        {/* Price */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Price</label>
-          <input
-            type="number"
-            placeholder="Enter product price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="px-4 py-2 border rounded-md"
-            required
-          />
-        </div>
+      <div className="flex flex-col space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Price</label>
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          required
+        />
+      </div>
 
-        {/* Color */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Color</label>
-          <input
-            type="text"
-            placeholder="Enter color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            className="px-4 py-2 border rounded-md"
-          />
-        </div>
+      <div className="flex flex-col space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Color</label>
+        <input
+          type="text"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
 
-        {/* Image Upload */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Upload Images</label>
-          <input
-            type="file"
-            multiple // Allows multiple file selection
-            onChange={handleImageChange}
-            className="px-4 py-2 border rounded-md"
-          />
-          {images.length > 0 && (
-            <div className="mt-2 text-sm">
-              <p><strong>Selected images:</strong></p>
-              <ul>
-                {images.map((img, index) => (
-                  <li key={index}>{img.name}</li>
-                ))}
-              </ul>
+      <div className="flex flex-col space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Rating (0-5)</label>
+        <input
+          type="number"
+          value={rating}
+          onChange={(e) => setRating(Math.min(5, Math.max(0, e.target.value)))}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          min="0"
+          max="5"
+        />
+      </div>
+
+      <div className="flex flex-col space-y-3">
+        <label className="text-lg font-semibold text-gray-700">Product Images</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImageUpload}
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <div className="flex space-x-4 mt-4">
+          {images.map((image, index) => (
+            <div key={index} className="relative">
+              <img src={URL.createObjectURL(image)} alt="Product" className="w-24 h-24 object-cover rounded-md" />
+              <button
+                type="button"
+                onClick={() => handleImageDelete(index)}
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+              >
+                <i className="ri-close-line"></i>
+              </button>
             </div>
-          )}
+          ))}
         </div>
+      </div>
 
-        {/* Submit Button */}
+      <div className="flex justify-center mt-6">
         <button
           type="submit"
+          className="px-6 py-2 bg-primary text-white text-sm font-medium rounded hover:bg-primary-dark transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLoading}
-          className={`w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition ${isLoading ? "opacity-50" : ""}`}
         >
-          {isLoading ? "Adding..." : "Add Product"}
+          {isLoading ? 'Adding...' : 'Add Product'}
         </button>
-      </form>
-    </div>
+      </div>
+
+    </form>
   );
 };
 
