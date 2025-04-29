@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { 
-  useFetchProductsByIdQuery, 
-  useFetchAllProductsQuery 
-} from '../../../Redux/Features/Products/products';
+import { useFetchProductsByIdQuery, useFetchAllProductsQuery } from '../../../Redux/Features/Products/products';
 import { addToCart } from '../../../Redux/Features/Cart/CartSlice';
 
 const SingleProduct = () => {

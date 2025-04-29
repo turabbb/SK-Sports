@@ -7,6 +7,8 @@ import SportsPage from "../Pages/Shop/SportsPage";
 import SingleProduct from "../Pages/Shop/Products/SingleProduct";
 import Login from "../Components/Login";
 import Register from "../Components/Register";
+import Dashboard from "../Pages/Dashboard/Dashboard";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
     {
@@ -23,12 +25,23 @@ const router = createBrowserRouter([
     
     {
         path: "/login",
-        element: <Login />
+        element: <Login />,
+        children: [
+            
+        ]
     },
 
     {
         path: "/register",
         element: <Register />
+    },
+    {
+        path: "/dashboard",
+        element: (
+            <PrivateRoute>
+                <Dashboard />
+            </PrivateRoute>
+        )
     }
 ]);
 

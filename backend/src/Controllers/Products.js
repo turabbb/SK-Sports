@@ -1,19 +1,41 @@
 const Products = require('../Models/Products');
+const cloudinary = require('../Config/cloudinary');
 
 const AddProduct = async (req, res) => {
     try {
-        const newProduct = new Products({
-            ...req.body
-        })
-
-        const savedProduct = await newProduct.save();
-        res.status(201).json(savedProduct);
-
+      const { name, category, description, price, color } = req.body;
+  
+      let imageUrls = [];
+  
+      if (req.files && req.files.images) {
+        const files = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
+  
+        for (let file of files) {
+          const uploaded = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "products",
+          });
+          imageUrls.push(uploaded.secure_url);
+        }
+      }
+  
+      const newProduct = new Products({
+        name,
+        category,
+        description,
+        price,
+        color,
+        image: imageUrls,
+      });
+  
+      const savedProduct = await newProduct.save();
+      res.status(201).json(savedProduct);
+  
     } catch (error) {
-        console.error("Error creating a product", error);
-        res.status(500).send({ message: "Failure adding a product" });
+      console.error("Error creating a product", error);
+      res.status(500).send({ message: "Failure adding a product" });
     }
-}
+  };
+  
 
 const getProducts = async (req, res) => {
     try {

@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const fileUpload = require('express-fileupload');
 
 const userRoutes = require("./src/Routes/UserRoute");
 const productRoutes = require("./src/Routes/Products");
@@ -14,6 +15,7 @@ app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(fileUpload({ useTempFiles: true }));
 
 // Routes
 app.use("/api/auth", userRoutes);
