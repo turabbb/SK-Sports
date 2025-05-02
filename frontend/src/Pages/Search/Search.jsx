@@ -32,6 +32,9 @@ const Search = () => {
                     <input type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSearch();
+                    }}
                     className='search-bar w-full max-w-4xl p-2 border rounded'
                     placeholder='Search for Products...' />
 

@@ -34,6 +34,30 @@ const SingleProduct = () => {
         }
     }, [singleProduct, allProductsData]);
 
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            const img = document.getElementById('zoom-img');
+            if (!img) return;
+    
+            const rect = img.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+            img.style.transformOrigin = `${x}% ${y}%`;
+        };
+    
+        if (isModalOpen) {
+            window.addEventListener('mousemove', handleMouseMove);
+        } else {
+            window.removeEventListener('mousemove', handleMouseMove);
+        }
+    
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, [isModalOpen]);
+    
+
     const handleAddToCart = (product) => {
         dispatch(addToCart({
             ...product,
@@ -54,6 +78,12 @@ const SingleProduct = () => {
             prevIndex === singleProduct.image.length - 1 ? 0 : prevIndex + 1
         );
     };
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [id]);
+    
+    
 
     const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
 
@@ -77,28 +107,34 @@ const SingleProduct = () => {
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm transition-opacity"
                     onClick={() => setIsModalOpen(false)}
                 >
+                    {/* Close Button (top-right corner of screen) */}
+                    <button
+                        className="fixed top-6 right-6 z-50 text-white text-4xl font-bold hover:text-red-400 bg-black bg-opacity-50 rounded-full w-12 h-12 flex items-center justify-center"
+                        onClick={() => setIsModalOpen(false)}
+                    >
+                        &times;
+                    </button>
+
                     <div
                         className="relative max-w-4xl w-full h-[80vh] p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <button
-                            className="absolute top-4 right-4 text-white text-3xl hover:text-red-400"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            &times;
-                        </button>
-
-                        <div className="w-full h-full overflow-hidden group relative">
+                        <div className="w-full h-full overflow-hidden relative group bg-black">
                             <img
                                 src={modalImageSrc}
                                 alt="Zoomed"
-                                className="w-full h-full object-contain transform group-hover:scale-150 transition-transform duration-300 cursor-zoom-out"
-                                style={{ transitionTimingFunction: 'ease-in-out' }}
+                                className="w-full h-full object-contain pointer-events-none"
+                                style={{
+                                    transform: `scale(2)`,
+                                    transformOrigin: 'center',
+                                }}
+                                id="zoom-img"
                             />
                         </div>
                     </div>
                 </div>
             )}
+
 
             <section className='section__container py-12'>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">

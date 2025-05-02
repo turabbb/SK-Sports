@@ -37,28 +37,41 @@ const AddProduct = async (req, res) => {
   };
   
 
-const getProducts = async (req, res) => {
+  const getProducts = async (req, res) => {
     try {
-        const { category, color, price, page = 1, limit = 10 } = req.query;
+        const { category, color, price, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
 
         let filter = {};
 
+        // Category filter
         if (category && category !== "all") {
             filter.category = category;
         }
 
+        // Color filter
         if (color && color !== "all") {
             filter.color = color;
         }
 
-        if (price && price !== "all") {
-            filter.price = { $lte: price };
+        // Price range filter (if both minPrice and maxPrice are provided)
+        if (minPrice && maxPrice) {
+            filter.price = { $gte: minPrice, $lte: maxPrice };
+        } else if (minPrice) {
+            filter.price = { $gte: minPrice }; // If only minPrice is provided
+        } else if (maxPrice) {
+            filter.price = { $lte: maxPrice }; // If only maxPrice is provided
+        } else if (price && price !== "all") {
+            filter.price = { $lte: price }; // Single price filter (not a range)
         }
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const totalProducts = await Products.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
-        const products = await Products.find(filter).skip(skip).limit(parseInt(limit)).populate().sort({ createdAt: -1 });
+        const products = await Products.find(filter)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate()
+            .sort({ createdAt: -1 });
 
         res.status(200).json({ products, totalPages, totalProducts });
 
@@ -67,6 +80,7 @@ const getProducts = async (req, res) => {
         res.status(500).send({ message: "Failure getting the products" });
     }
 }
+
 
 const getProductById = async (req, res) => {
     try {

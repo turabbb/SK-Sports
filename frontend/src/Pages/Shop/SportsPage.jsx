@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCards from './ProductCards';
 import SportsPageFilter from './SportsPageFilter';
 import { useFetchAllProductsQuery } from '../../Redux/Features/Products/products';
 
 const filters = {
-    categories: ['All', 'Hard Ball Bat', 'Tape Ball Bat', 'Pads', 'Thigh Pads', 'Gloves', 'Helmet', 'Guard', 'Tape Ball', 'Hard Ball', 'Kit Bags', 'Cricket Spikes',
-        'Football Boots', 'Football', 'Gym Accessories', 'SportsWear Shirts', 'Trousers', 'Hoodies', 'Zippers', 'TrackSuits', 'Shorts', 'Caps', 'Custom Shirts',
-        'Indoor Games'],
+    categories: [
+        'All', 'Hard Ball Bat', 'Tape Ball Bat', 'Pads', 'Thigh Pads', 'Gloves', 'Helmet', 'Guard', 'Tape Ball', 'Hard Ball', 'Kit Bags',
+        'Cricket Spikes', 'Football Boots', 'Football', 'Gym Accessories', 'SportsWear Shirts', 'Trousers', 'Hoodies', 'Zippers', 'TrackSuits',
+        'Shorts', 'Caps', 'Custom Shirts', 'Indoor Games'
+    ],
 
     priceRange: [
         { label: 'Under Rs.1000', min: 0, max: 1000 },
@@ -20,7 +21,6 @@ const filters = {
 }
 
 const SportsPage = () => {
-
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(8);
 
@@ -31,9 +31,13 @@ const SportsPage = () => {
     });
 
     const { category, color, priceRange } = filteredProducts;
-    const [minPrice, maxPrice] = priceRange.split('-').map(Number);
 
+    // Make sure the price range is correctly split
+    const [minPrice, maxPrice] = priceRange ? priceRange.split('-').map(Number) : [0, Infinity];
 
+    console.log("Category: ", category, " Color: ", color, " Price Range: ", priceRange, " minPrice: ", minPrice, " maxPrice: ", maxPrice); // Debugging logs
+
+    // Make the request using query params
     const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery({
         category: category !== 'All' ? category : '',
         color: color !== 'All' ? color : '',
@@ -74,13 +78,12 @@ const SportsPage = () => {
 
             <section className='section__container'>
                 <div className='flex flex-col md:flex-row md:gap-12 gap-8'>
-
                     <SportsPageFilter filters={filters} filteredProducts={filteredProducts} setFilteredProducts={setFilteredProducts} clearFilters={clearFilters} />
 
                     <div>
-                        <h3 className='tetxt-xl font-medium mb-4'>
+                        <h3 className='text-xl font-medium mb-4'>
                             Showing {startProduct} - {endProduct} of {totalProducts} Products
-                            </h3>
+                        </h3>
                         <ProductCards products={products} />
 
                         <div className='mt-10 flex justify-center items-center gap-2'>
@@ -116,12 +119,11 @@ const SportsPage = () => {
                                 Next
                             </button>
                         </div>
-
                     </div>
                 </div>
             </section>
         </>
-    )
+    );
 }
 
-export default SportsPage
+export default SportsPage;
