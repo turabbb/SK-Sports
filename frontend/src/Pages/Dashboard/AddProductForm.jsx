@@ -11,7 +11,7 @@ const AddProductForm = () => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [color, setColor] = useState('');
-  const [rating, setRating] = useState(0); // New state for rating
+  const [rating, setRating] = useState('0'); // Changed to string to better handle form input
   const [images, setImages] = useState([]);
   const [addProduct, { isLoading }] = useAddProductMutation();
 
@@ -22,6 +22,15 @@ const AddProductForm = () => {
 
   const handleImageDelete = (index) => {
     setImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
+
+  // Dedicated handler for rating changes to ensure proper number conversion
+  const handleRatingChange = (e) => {
+    const value = e.target.value;
+    // Validate input to allow only numbers between 0-5
+    if (value === '' || (parseFloat(value) >= 0 && parseFloat(value) <= 5)) {
+      setRating(value);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,14 +47,23 @@ const AddProductForm = () => {
     formData.append('description', description);
     formData.append('price', price);
     formData.append('color', color);
-    formData.append('rating', rating); // Append the rating
-    images.forEach((image) => formData.append('image', image));
+    
+    // Convert rating to number before sending
+    formData.append('rating', parseFloat(rating) || 0);
+    
+    // Send images with BOTH "image" and "images" keys to ensure compatibility
+    images.forEach((image) => {
+      formData.append('images', image); // Add this to match possible backend expectation
+    });
 
     try {
-      await addProduct(formData).unwrap();
+      console.log('Submitting product with rating:', parseFloat(rating));
+      const response = await addProduct(formData).unwrap();
+      console.log('API Response:', response);
       toast.success("Product added successfully!");
-      navigate('/admin/products');  // Navigate to the admin products page
+      navigate('/dashboard');  
     } catch (error) {
+      console.error('Error adding product:', error);
       toast.error("Failed to add product.");
     }
   };
@@ -111,10 +129,11 @@ const AddProductForm = () => {
         <input
           type="number"
           value={rating}
-          onChange={(e) => setRating(Math.min(5, Math.max(0, e.target.value)))}
+          onChange={handleRatingChange}
           className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           min="0"
           max="5"
+          step="0.1" // Allow decimal ratings for more precision
         />
       </div>
 
@@ -127,9 +146,9 @@ const AddProductForm = () => {
           onChange={handleImageUpload}
           className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <div className="flex space-x-4 mt-4">
+        <div className="flex space-x-4 mt-4 flex-wrap">
           {images.map((image, index) => (
-            <div key={index} className="relative">
+            <div key={index} className="relative mb-4">
               <img src={URL.createObjectURL(image)} alt="Product" className="w-24 h-24 object-cover rounded-md" />
               <button
                 type="button"

@@ -2,40 +2,42 @@ const Products = require('../Models/Products');
 const cloudinary = require('../Config/cloudinary');
 
 const AddProduct = async (req, res) => {
-    try {
-      const { name, category, description, price, color } = req.body;
-  
-      let imageUrls = [];
-  
-      if (req.files && req.files.images) {
-        const files = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
-  
-        for (let file of files) {
-          const uploaded = await cloudinary.uploader.upload(file.tempFilePath, {
-            folder: "products",
-          });
-          imageUrls.push(uploaded.secure_url);
-        }
+  try {
+    const { name, category, description, price, color, rating } = req.body;
+
+    const imageUrls = [];
+
+    if (req.files?.images) {
+      const imageFiles = Array.isArray(req.files.images)
+        ? req.files.images
+        : [req.files.images];
+
+      for (const file of imageFiles) {
+        const uploaded = await cloudinary.uploader.upload(file.tempFilePath, {
+          folder: 'products',
+        });
+        imageUrls.push(uploaded.secure_url);
       }
-  
-      const newProduct = new Products({
-        name,
-        category,
-        description,
-        price,
-        color,
-        image: imageUrls,
-      });
-  
-      const savedProduct = await newProduct.save();
-      res.status(201).json(savedProduct);
-  
-    } catch (error) {
-      console.error("Error creating a product", error);
-      res.status(500).send({ message: "Failure adding a product" });
     }
-  };
-  
+
+    const newProduct = new Products({
+      name,
+      category,
+      description,
+      price,
+      color,
+      rating: parseFloat(rating) || 0,
+      image: imageUrls,
+    });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
+  } catch (error) {
+    console.error("Error creating a product:", error.message);
+    res.status(500).json({ message: "Failed to add product" });
+  }
+};
+
 
   const getProducts = async (req, res) => {
     try {

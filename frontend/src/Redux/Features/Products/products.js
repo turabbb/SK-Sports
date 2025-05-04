@@ -32,12 +32,12 @@ const products = createApi({
             providesTags: (result, error, id) => [{type: "Products", id}],
         }),
 
-        AddProduct: builder.mutation({
+        addProduct: builder.mutation({
             query: (newProduct) => ({
-                url: '/AddProduct',
+                url: '/addProduct',
                 method: 'POST',
                 body: newProduct,
-                credentials: "include",
+                formData: true,
             }),
             invalidatesTags: ['Products']
         }),
@@ -62,11 +62,18 @@ const products = createApi({
                 method: "DELETE",
                 credentials: "include"
             }),
-            invalidatesTags: (result, error, id) => [{type: "Products",id}]
+            invalidatesTags: (result, error, id) => [{type: "Products", id}]
         })
     })
 })
 
-export const {useFetchAllProductsQuery, useFetchProductsByIdQuery, useAddProductMutation, useUpdateProductsMutation, useDeleteProductsMutation, useFetchRelatedProductsQuery} = products;
+export const {
+    useFetchAllProductsQuery, 
+    useFetchProductsByIdQuery, 
+    useAddProductMutation, // This name must match the endpoint name (addProduct)
+    useUpdateProductsMutation, 
+    useDeleteProductsMutation, 
+    useFetchRelatedProductsQuery
+} = products;
 
 export default products;
