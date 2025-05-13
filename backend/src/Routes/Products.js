@@ -3,7 +3,7 @@ const router = express.Router();
 const { AddProduct, getProducts, getProductById, updateProduct, deleteProduct, relatedProducts } = require('../Controllers/Products');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-router.post("/AddProduct", AddProduct);
+router.post("/addProduct", AddProduct);
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 router.patch("/update/:id", verifyToken, updateProduct);

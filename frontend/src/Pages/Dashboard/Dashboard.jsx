@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Features/Auth/AuthSlice";
 import AddProductForm from "./AddProductForm";
+import UpdateProduct from "./UpdateProduct";
 
 const Dashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -25,7 +26,7 @@ const Dashboard = () => {
             case "addProduct":
                 return <AddProductForm />;
             case "updateProduct":
-                return <div>Update/Delete Product Section</div>;
+                return < UpdateProduct />;
             case "viewOrders":
                 return <div>View All Orders Here</div>;
             case "updateTracking":

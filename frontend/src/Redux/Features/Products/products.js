@@ -58,7 +58,7 @@ const products = createApi({
 
         deleteProducts: builder.mutation({
             query: ({id}) => ({
-                url: `/${id}`,
+                url: `delete/${id}`,
                 method: "DELETE",
                 credentials: "include"
             }),
@@ -70,7 +70,7 @@ const products = createApi({
 export const {
     useFetchAllProductsQuery, 
     useFetchProductsByIdQuery, 
-    useAddProductMutation, // This name must match the endpoint name (addProduct)
+    useAddProductMutation, 
     useUpdateProductsMutation, 
     useDeleteProductsMutation, 
     useFetchRelatedProductsQuery

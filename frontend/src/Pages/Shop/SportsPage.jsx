@@ -47,6 +47,8 @@ const SportsPage = () => {
         limit: productsPerPage
     });
 
+    console.log(products);
+
     useEffect(() => { window.scrollTo(0, 0) }, []);
 
     const clearFilters = () => {
