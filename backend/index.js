@@ -7,6 +7,7 @@ const fileUpload = require('express-fileupload');
 
 const userRoutes = require("./src/Routes/UserRoute");
 const productRoutes = require("./src/Routes/Products");
+const orderRoutes = require ("./src/Routes/Orders");
 
 const app = express();
 

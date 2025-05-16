@@ -64,7 +64,7 @@ const SingleProduct = () => {
             quantity,
             selectedSize: selectedSize || 'M',
         }));
-        navigate('/cart');
+        //navigate('/cart');
     };
 
     const handlePrevImage = () => {
