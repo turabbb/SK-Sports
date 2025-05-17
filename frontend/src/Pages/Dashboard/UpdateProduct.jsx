@@ -15,7 +15,15 @@ const UpdateProduct = () => {
   const [deleteProduct] = useDeleteProductsMutation();
 
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    description: '',
+    category: '',
+    color: '',
+    rating: '',
+  });
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
@@ -27,7 +35,7 @@ const UpdateProduct = () => {
         description: selectedProduct.description || '',
         category: selectedProduct.category || '',
         color: selectedProduct.color || '',
-        rating: selectedProduct.rating || '',
+        rating: selectedProduct.rating?.toString() || '',
       });
     }
   }, [selectedProduct]);

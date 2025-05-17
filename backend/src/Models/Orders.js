@@ -1,4 +1,4 @@
-const  mongoose = require ('mongoose');
+const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   customerInfo: {
@@ -18,8 +18,15 @@ const orderSchema = new mongoose.Schema({
     country: { type: String, required: true },
   },
   totalPrice: { type: Number, required: true },
+  paymentMethod: { type: String },             // Add payment method info
+  paymentScreenshot: { type: String },         // Optional: URL or base64 or filename for screenshot
   isPaid: { type: Boolean, default: false },
   paidAt: Date,
+  trackingInfo: {                               
+    status: { type: String, default: 'Pending' }, // e.g., Pending, Shipped, Delivered
+    updatedAt: Date,
+    // add more fields if needed (e.g., courier name, tracking number, etc.)
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

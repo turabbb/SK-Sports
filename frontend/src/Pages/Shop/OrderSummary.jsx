@@ -2,15 +2,22 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../../Redux/Features/Cart/CartSlice';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const OrderSummary = () => {
+const OrderSummary = ({ onClose }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const { selectedItems, totalPrice, delivery, grandTotal } = useSelector((store) => store.cart);
 
     const handleClearCart = () => {
         dispatch(clearCart());
     };
 
-    const { selectedItems, totalPrice, delivery, grandTotal } = useSelector((store) => store.cart);
+    const handleCheckout = () => {
+        onClose(); // Close the cart modal
+        navigate("/checkout"); // Navigate to checkout page
+    };
 
     return (
         <motion.div 
@@ -25,6 +32,7 @@ const OrderSummary = () => {
             <p className='text-gray-700'>Subtotal: <span className='font-medium'>Rs. {totalPrice}</span></p>
             <p className='text-gray-700'>Delivery Charges: <span className='font-medium'>Rs. {delivery}</span></p>
             <h3 className='text-lg font-bold mt-3'>Grand Total: <span className='text-green-600'>Rs. {grandTotal}</span></h3>
+            
             <div className='mt-5 flex flex-col gap-3'>
                 <motion.button 
                     whileTap={{ scale: 0.9 }}
@@ -33,8 +41,10 @@ const OrderSummary = () => {
                 >
                     <i className="ri-delete-bin-6-line"></i> Clear Cart
                 </motion.button>
+
                 <motion.button 
                     whileTap={{ scale: 0.9 }}
+                    onClick={handleCheckout}
                     className='bg-green-600 hover:bg-green-700 px-4 py-2 text-white rounded-lg flex items-center justify-center gap-2 transition-all shadow-md'
                 >
                     <i className="ri-bank-card-line"></i> Checkout

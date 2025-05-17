@@ -48,7 +48,7 @@ const CartModel = ({ products, isOpen, onClose }) => {
                             ) : (
                                 products.map((item, index) => (
                                     <motion.div
-                                        key={item.id}
+                                        key={`${item.id}-${index}`}  // <-- key fixed here
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
@@ -73,7 +73,7 @@ const CartModel = ({ products, isOpen, onClose }) => {
                             )}
                         </div>
 
-                        {products.length > 0 && <OrderSummary />}
+                        {products.length > 0 && <OrderSummary onClose={onClose}/>}
                     </motion.div>
                 </motion.div>
             )}

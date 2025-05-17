@@ -9,6 +9,7 @@ import Login from "../Components/Login";
 import Register from "../Components/Register";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 import PrivateRoute from "./PrivateRoute";
+import Checkout from "../Pages/Shop/Checkout";
 
 const router = createBrowserRouter([
     {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
             { path: "/search", element: <Search /> },
             { path: "/sports", element: <SportsPage /> },
             { path: "/sports/:id", element: <SingleProduct /> },
+            {path: "/checkout", element: <Checkout />},
         ]
     },
     
