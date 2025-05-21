@@ -21,7 +21,7 @@ app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
 // Routes
 app.use("/api/auth", userRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/order", orderRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Test route
 app.get("/", (req, res) => {

@@ -1,39 +1,60 @@
 const Order = require('../Models/Orders');
+const cloudinary = require('../Config/cloudinary');
 
 // Create Order
 const createOrder = async (req, res) => {
-  const {
-    customerInfo,
-    orderItems,
-    shippingAddress,
-    totalPrice,
-    paymentMethod,
-    paymentScreenshot
-  } = req.body;
-
-  if (!orderItems || orderItems.length === 0) {
-    return res.status(400).json({ message: 'No order items provided' });
-  }
-
-  if (!customerInfo?.name || !customerInfo?.email) {
-    return res.status(400).json({ message: 'Customer name and email are required' });
-  }
-
+  console.log("Received order creation request:", req.body);
   try {
-    const order = new Order({
+    // Parse fields from req.body
+    const {
       customerInfo,
       orderItems,
       shippingAddress,
       totalPrice,
       paymentMethod,
-      paymentScreenshot,
+    } = req.body;
+
+    // Parse JSON strings if needed (because FormData sends strings)
+    const parsedCustomerInfo = typeof customerInfo === 'string' ? JSON.parse(customerInfo) : customerInfo;
+    const parsedOrderItems = typeof orderItems === 'string' ? JSON.parse(orderItems) : orderItems;
+    const parsedShippingAddress = typeof shippingAddress === 'string' ? JSON.parse(shippingAddress) : shippingAddress;
+
+    if (!parsedOrderItems || parsedOrderItems.length === 0) {
+      return res.status(400).json({ message: 'No order items provided' });
+    }
+
+    if (!parsedCustomerInfo?.name || !parsedCustomerInfo?.email) {
+      return res.status(400).json({ message: 'Customer name and email are required' });
+    }
+
+    let paymentScreenshotUrl = null;
+
+    // Handle payment screenshot upload only if payment method is "Pay Now"
+    if (paymentMethod === "Pay Now" && req.files?.paymentScreenshot) {
+      // Upload to Cloudinary
+      const uploaded = await cloudinary.uploader.upload(req.files.paymentScreenshot.tempFilePath, {
+        folder: 'paymentScreenshots',
+      });
+      paymentScreenshotUrl = uploaded.secure_url;
+    }
+
+    // Create order with or without screenshot URL
+    const order = new Order({
+      customerInfo: parsedCustomerInfo,
+      orderItems: parsedOrderItems,
+      shippingAddress: parsedShippingAddress,
+      totalPrice,
+      paymentMethod,
+      paymentScreenshot: paymentScreenshotUrl, // null if not uploaded
       isPaid: paymentMethod === "Pay Now",
       paidAt: paymentMethod === "Pay Now" ? new Date() : null
     });
 
     const createdOrder = await order.save();
-    // TODO: Send Email Here
+    // TODO: Send Email Here if needed
+
     res.status(201).json(createdOrder);
+
   } catch (error) {
     console.error('Order creation error:', error);
     res.status(500).json({ message: 'Failed to create order' });

@@ -6,14 +6,23 @@ const orders = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${getbaseUrl()}/api/orders`,
     credentials: 'include',
+    prepareHeaders: (headers, { body }) => {
+      // ✅ Skip setting Content-Type if the body is FormData
+      if (body instanceof FormData) {
+        return headers;
+      }
+
+      headers.set('Content-Type', 'application/json');
+      return headers;
+    },
   }),
   tagTypes: ['Orders'],
   endpoints: (builder) => ({
     placeOrder: builder.mutation({
-      query: (orderData) => ({
+      query: (formData) => ({
         url: '/placeorder',
         method: 'POST',
-        body: orderData,
+        body: formData, // FormData handled by fetch automatically
       }),
       invalidatesTags: ['Orders'],
     }),
@@ -42,6 +51,11 @@ const orders = createApi({
   }),
 });
 
-export const { usePlaceOrderMutation, useFetchAllOrdersQuery, useFetchOrderByIdQuery, useUpdateTrackingMutation } = orders;
+export const {
+  usePlaceOrderMutation,
+  useFetchAllOrdersQuery,
+  useFetchOrderByIdQuery,
+  useUpdateTrackingMutation,
+} = orders;
 
 export default orders;

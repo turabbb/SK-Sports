@@ -13,19 +13,18 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   shippingAddress: {
-    address: { type: String, required: true },
+    address: { type: String, required: true }, // street, province, zip
     city: { type: String, required: true },
     country: { type: String, required: true },
   },
   totalPrice: { type: Number, required: true },
-  paymentMethod: { type: String },             // Add payment method info
-  paymentScreenshot: { type: String },         // Optional: URL or base64 or filename for screenshot
+  paymentMethod: { type: String },
+  paymentScreenshot: { type: String },
   isPaid: { type: Boolean, default: false },
   paidAt: Date,
-  trackingInfo: {                               
-    status: { type: String, default: 'Pending' }, // e.g., Pending, Shipped, Delivered
+  trackingInfo: {
+    status: { type: String, default: 'Pending' },
     updatedAt: Date,
-    // add more fields if needed (e.g., courier name, tracking number, etc.)
   },
   createdAt: { type: Date, default: Date.now }
 });
