@@ -6,24 +6,26 @@ const orders = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${getbaseUrl()}/api/orders`,
     credentials: 'include',
-    prepareHeaders: (headers, { body }) => {
-      // ✅ Skip setting Content-Type if the body is FormData
-      if (body instanceof FormData) {
-        return headers;
-      }
-
-      headers.set('Content-Type', 'application/json');
+    prepareHeaders: (headers) => {
+      // Do not set Content-Type for FormData requests
+      // The browser will automatically set the correct Content-Type with boundary
       return headers;
     },
   }),
   tagTypes: ['Orders'],
   endpoints: (builder) => ({
     placeOrder: builder.mutation({
-      query: (formData) => ({
-        url: '/placeorder',
-        method: 'POST',
-        body: formData, // FormData handled by fetch automatically
-      }),
+      query: (formData) => {
+        console.log("Sending order to API");
+        return {
+          url: '/placeorder',
+          method: 'POST',
+          body: formData,
+          // Important: Do not set Content-Type header for FormData
+          // The browser will set it correctly with multipart/form-data and boundary
+          formData: true,
+        };
+      },
       invalidatesTags: ['Orders'],
     }),
 

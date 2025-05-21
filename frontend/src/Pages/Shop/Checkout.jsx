@@ -17,34 +17,59 @@ const Checkout = () => {
   });
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
-  const [placeOrder] = usePlaceOrderMutation();
+  const [placeOrder, { isLoading }] = usePlaceOrderMutation();
   const [showModal, setShowModal] = useState(false);
   const [orderId, setOrderId] = useState('');
 
   const handleOrderSubmit = async () => {
-    console.log("Submitting order with data:");
-    const formData = new FormData();
-
-    const transformedAddress = {
-      address: `${shippingAddress.street}, ${shippingAddress.province}, ${shippingAddress.zip}`,
-      city: shippingAddress.city,
-      country: shippingAddress.country
-    };
-
-    formData.append('customerInfo', JSON.stringify(customerInfo));
-    formData.append('shippingAddress', JSON.stringify(transformedAddress));
-    formData.append('orderItems', JSON.stringify(cartItems));
-    formData.append('totalPrice', totalPrice);
-    formData.append('paymentMethod', paymentMethod);
-    if (paymentScreenshot) formData.append('paymentScreenshot', paymentScreenshot);
-
     try {
-      const res = await placeOrder(formData).unwrap();
-      setOrderId(res._id);
+      // Validation
+      if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+        return toast.error('Please fill in all contact information');
+      }
+      if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.province || !shippingAddress.zip) {
+        return toast.error('Please fill in all shipping address fields');
+      }
+      if (paymentMethod === 'Pay Now' && !paymentScreenshot) {
+        return toast.error('Please upload a payment screenshot');
+      }
+      if (cartItems.length === 0) {
+        return toast.error('Your cart is empty');
+      }
+
+      // Create FormData
+      const formData = new FormData();
+      
+      const transformedAddress = {
+        address: `${shippingAddress.street}, ${shippingAddress.province}, ${shippingAddress.zip}`,
+        city: shippingAddress.city,
+        country: shippingAddress.country
+      };
+
+      // Append data to FormData
+      formData.append('customerInfo', JSON.stringify(customerInfo));
+      formData.append('shippingAddress', JSON.stringify(transformedAddress));
+      formData.append('orderItems', JSON.stringify(cartItems));
+      formData.append('totalPrice', totalPrice.toString());
+      formData.append('paymentMethod', paymentMethod);
+      
+      if (paymentMethod === 'Pay Now' && paymentScreenshot) {
+        formData.append('paymentScreenshot', paymentScreenshot);
+      }
+
+      console.log("Submitting order data:");
+      console.log("- Customer Info:", customerInfo);
+      console.log("- Shipping Address:", transformedAddress);
+      console.log("- Payment Method:", paymentMethod);
+      console.log("- Total Price:", totalPrice);
+
+      const response = await placeOrder(formData).unwrap();
+      console.log("Order created successfully:", response);
+      setOrderId(response._id);
       setShowModal(true);
     } catch (err) {
-      console.error(err);
-      toast.error('Failed to place order.');
+      console.error("Order creation error:", err);
+      toast.error('Failed to place order. Please try again.');
     }
   };
 
@@ -104,8 +129,12 @@ const Checkout = () => {
 
           {/* Place Order Button */}
           <div className="flex justify-end">
-            <button onClick={handleOrderSubmit} className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition">
-              Place Order
+            <button 
+              onClick={handleOrderSubmit} 
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Processing...' : 'Place Order'}
             </button>
           </div>
         </div>

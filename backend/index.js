@@ -7,16 +7,23 @@ const fileUpload = require('express-fileupload');
 
 const userRoutes = require("./src/Routes/UserRoute");
 const productRoutes = require("./src/Routes/Products");
-const orderRoutes = require ("./src/Routes/Orders");
+const orderRoutes = require("./src/Routes/Orders");
 
 const app = express();
 
 // Middleware
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
+app.use(fileUpload({ 
+  useTempFiles: true, 
+  tempFileDir: '/tmp/',
+  // Limit uploads to 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }, 
+  // Reject on aborted connections 
+  abortOnLimit: true
+}));
 
 // Routes
 app.use("/api/auth", userRoutes);
@@ -40,6 +47,3 @@ mongoose.connect(process.env.DB_URL)
     .catch(error => {
         console.error("Database connection error:", error);
     });
-
-
-    //Heres a comment I added to check the commit.
