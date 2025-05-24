@@ -1,6 +1,22 @@
 const Order = require('../Models/Orders');
 const cloudinary = require('../Config/cloudinary');
 
+// ✅ Generate readable order number
+const generateOrderNumber = async () => {
+  const date = new Date();
+  const yymmdd = date.toISOString().slice(2, 10).replace(/-/g, "");
+
+  const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+  const count = await Order.countDocuments({
+    createdAt: { $gte: startOfDay, $lte: endOfDay },
+  });
+
+  const paddedNumber = String(count + 1).padStart(5, '0');
+  return `SPS-${yymmdd}-${paddedNumber}`;
+};
+
 // Create Order
 const createOrder = async (req, res) => {
   console.log("Received order creation request");
@@ -71,6 +87,8 @@ const createOrder = async (req, res) => {
 
     console.log("Transformed order items:", transformedItems);
 
+    const orderNumber = await generateOrderNumber(); // ✅ Generate orderNumber
+
     // Create order with or without screenshot URL
     const order = new Order({
       customerInfo: parsedCustomerInfo,
@@ -80,7 +98,8 @@ const createOrder = async (req, res) => {
       paymentMethod,
       paymentScreenshot: paymentScreenshotUrl, // null if not uploaded
       isPaid: paymentMethod === "Pay Now",
-      paidAt: paymentMethod === "Pay Now" ? new Date() : null
+      paidAt: paymentMethod === "Pay Now" ? new Date() : null,
+      orderNumber,
     });
 
     const createdOrder = await order.save();
