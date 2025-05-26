@@ -16,7 +16,7 @@ const Checkout = () => {
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
   const [placeOrder, { isLoading }] = usePlaceOrderMutation();
   const [showModal, setShowModal] = useState(false);
-  const [orderId, setOrderId] = useState('');
+  const [orderNumber, setOrderNumber] = useState(''); // Changed from orderId to orderNumber
 
   const handleOrderSubmit = async () => {
     try {
@@ -45,7 +45,7 @@ const Checkout = () => {
         formData.append('paymentScreenshot', paymentScreenshot);
 
       const response = await placeOrder(formData).unwrap();
-      setOrderId(response._id);
+      setOrderNumber(response.orderNumber); // Use orderNumber instead of _id
       setShowModal(true);
       document.body.style.overflow = 'hidden'; // prevent background scroll
     } catch (err) {
@@ -85,7 +85,7 @@ const Checkout = () => {
                 <h2 className="text-2xl font-bold mb-4 text-green-700">Thank you for your order!</h2>
                 <p className="text-gray-700 mb-2">We've emailed your order confirmation.</p>
                 <p className="text-gray-800 font-semibold">
-                  Order ID: <span className="text-green-600">{orderId}</span>
+                  Order Number: <span className="text-green-600">{orderNumber}</span>
                 </p>
                 <button
                   onClick={closeModal}
@@ -229,7 +229,6 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Order Summary */}
           {/* Order Summary */}
           <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100 sticky top-6 h-fit max-h-[80vh] overflow-y-auto">
             <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">Order Summary</h3>

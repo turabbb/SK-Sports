@@ -43,12 +43,18 @@ const orders = createApi({
     }),
 
     updateTracking: builder.mutation({
-      query: ({ id, trackingInfo }) => ({
+      query: ({ id, trackingStatus, note }) => ({
         url: `/${id}/tracking`,
         method: 'PATCH',
-        body: { trackingInfo },
+        body: { trackingStatus, note }, // Fixed: Send trackingStatus and note directly
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Orders', id }],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Orders', id }, 'Orders'],
+    }),
+
+    // Add customer tracking endpoint
+    fetchOrderByNumber: builder.query({
+      query: (orderNumber) => `/track/${orderNumber}`,
+      providesTags: (result, error, orderNumber) => [{ type: 'Orders', id: orderNumber }],
     }),
   }),
 });
@@ -58,6 +64,7 @@ export const {
   useFetchAllOrdersQuery,
   useFetchOrderByIdQuery,
   useUpdateTrackingMutation,
+  useFetchOrderByNumberQuery, // Export the new hook
 } = orders;
 
 export default orders;

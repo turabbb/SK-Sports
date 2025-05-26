@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Features/Auth/AuthSlice";
 import AddProductForm from "./AddProductForm";
 import UpdateProduct from "./UpdateProduct";
+import UpdateTracking from "./UpdateTracking";
+import OrderHistory from "./OrderHistory";
 
 const Dashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -27,12 +29,10 @@ const Dashboard = () => {
                 return <AddProductForm />;
             case "updateProduct":
                 return < UpdateProduct />;
-            case "viewOrders":
-                return <div>View All Orders Here</div>;
             case "updateTracking":
-                return <div>Update Order Tracking Details</div>;
+                return <UpdateTracking />;
             case "orderHistory":
-                return <div>Order History of all completed orders</div>;
+                return <OrderHistory />;
             default:
                 return null;
         }
@@ -68,7 +68,6 @@ const Dashboard = () => {
                         {[
                             { label: "Add Product", icon: "ri-add-line", value: "addProduct" },
                             { label: "Update Product", icon: "ri-edit-line", value: "updateProduct" },
-                            { label: "View Orders", icon: "ri-file-list-2-line", value: "viewOrders" },
                             { label: "Update Tracking", icon: "ri-truck-line", value: "updateTracking" },
                             { label: "Order History", icon: "ri-history-line", value: "orderHistory" },
                         ].map((item) => (

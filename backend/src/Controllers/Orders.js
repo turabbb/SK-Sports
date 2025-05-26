@@ -88,6 +88,7 @@ const createOrder = async (req, res) => {
     console.log("Transformed order items:", transformedItems);
 
     const orderNumber = await generateOrderNumber(); // ✅ Generate orderNumber
+    console.log("Generated order number:", orderNumber); // Debug log
 
     // Create order with or without screenshot URL
     const order = new Order({
@@ -100,10 +101,18 @@ const createOrder = async (req, res) => {
       isPaid: paymentMethod === "Pay Now",
       paidAt: paymentMethod === "Pay Now" ? new Date() : null,
       orderNumber,
+      trackingStatus: 'Order Received', // Set initial tracking status
     });
 
+    console.log("Order object before save:", {
+      orderNumber: order.orderNumber,
+      customerInfo: order.customerInfo,
+      totalPrice: order.totalPrice
+    }); // Debug log
+
     const createdOrder = await order.save();
-    console.log("Order created successfully:", createdOrder._id);
+    console.log("Order created successfully with ID:", createdOrder._id);
+    console.log("Saved order number:", createdOrder.orderNumber); // Debug log
 
     res.status(201).json(createdOrder);
 
@@ -145,10 +154,10 @@ const getOrderById = async (req, res) => {
   }
 };
 
-// Update Order Tracking
+// Update Order Tracking Status
 const updateTracking = async (req, res) => {
   const { id } = req.params;
-  const { trackingInfo } = req.body;
+  const { trackingStatus, note } = req.body;
 
   try {
     const order = await Order.findById(id);
@@ -156,14 +165,77 @@ const updateTracking = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    order.trackingInfo = trackingInfo;
+    // Validate tracking status
+    const validStatuses = ['Order Received', 'Processing', 'In Transit', 'Delivered'];
+    if (!validStatuses.includes(trackingStatus)) {
+      return res.status(400).json({ message: 'Invalid tracking status' });
+    }
+
+    // Update tracking status
+    order.trackingStatus = trackingStatus;
+    
+    // Add to tracking history
+    order.trackingHistory.push({
+      status: trackingStatus,
+      updatedAt: new Date(),
+      note: note || `Order status updated to ${trackingStatus}`,
+    });
+
+    // If delivered, update delivery status
+    if (trackingStatus === 'Delivered') {
+      order.isDelivered = true;
+      order.deliveredAt = new Date();
+    }
+
     await order.save();
 
-    res.status(200).json({ message: 'Tracking info updated successfully', order });
+    res.status(200).json({ 
+      message: 'Tracking status updated successfully', 
+      order 
+    });
   } catch (error) {
     console.error('Error updating tracking:', error);
     res.status(500).json({ message: 'Failed to update tracking' });
   }
 };
 
-module.exports = { createOrder, getAllOrders, getOrderById, updateTracking };
+// Get Order by Order Number (for customer tracking)
+const getOrderByNumber = async (req, res) => {
+  try {
+    const { orderNumber } = req.params;
+    const order = await Order.findOne({ orderNumber });
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Return limited information for customer tracking
+    const trackingInfo = {
+      orderNumber: order.orderNumber,
+      trackingStatus: order.trackingStatus,
+      trackingHistory: order.trackingHistory,
+      orderItems: order.orderItems.map(item => ({
+        title: item.title,
+        quantity: item.quantity,
+        image: item.image
+      })),
+      totalPrice: order.totalPrice,
+      createdAt: order.createdAt,
+      isDelivered: order.isDelivered,
+      deliveredAt: order.deliveredAt,
+    };
+
+    res.json(trackingInfo);
+  } catch (error) {
+    console.error('Error fetching order by number:', error);
+    res.status(500).json({ message: 'Failed to fetch order' });
+  }
+};
+
+module.exports = { 
+  createOrder, 
+  getAllOrders, 
+  getOrderById, 
+  updateTracking,
+  getOrderByNumber 
+};

@@ -6,6 +6,11 @@ const OrderSchema = new mongoose.Schema({
     ref: "User",
     required: false,
   },
+  customerInfo: {
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+  },
   orderItems: [
     {
       title: {
@@ -69,6 +74,10 @@ const OrderSchema = new mongoose.Schema({
   },
   deliveredAt: {
     type: Date,
+  },
+  trackingInfo: {
+    type: String,
+    required: false,
   },
 }, {
   timestamps: true,
