@@ -7,10 +7,30 @@ import { Link } from 'react-router-dom';
 
 const Categories = () => {
   const categories = [
-    { id: 1, name: 'Cricket', path: 'cricket', image: cat1 },
-    { id: 2, name: 'Football', path: 'football', image: cat2 },
-    { id: 3, name: 'Accessories', path: 'accessories', image: cat3 },
-    { id: 4, name: 'Custom Kits', path: 'custom', image: cat4 },
+    { 
+      id: 1, 
+      name: 'Cricket', 
+      path: '/sports?categories=Hard Ball Bat,Tape Ball Bat,Pads,Thigh Pads,Gloves,Helmet,Guard,Tape Ball,Hard Ball,Kit Bags,Cricket Spikes', 
+      image: cat1 
+    },
+    { 
+      id: 2, 
+      name: 'Football', 
+      path: '/sports?categories=Football Boots,Football', 
+      image: cat2 
+    },
+    { 
+      id: 3, 
+      name: 'Accessories', 
+      path: '/accessories', // This will use your existing AccessoriesPage
+      image: cat3 
+    },
+    { 
+      id: 4, 
+      name: 'Custom Kits', 
+      path: '/sports?category=Custom Shirts', // Single category filter
+      image: cat4 
+    },
   ];
 
   return (
@@ -18,7 +38,7 @@ const Categories = () => {
       {categories.map((category) => (
         <Link
           key={category.id}
-          to={`/category/${category.path}`}
+          to={category.path}
           className="categories__card"
         >
           <img src={category.image} alt={category.name} />

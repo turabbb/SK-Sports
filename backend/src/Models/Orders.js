@@ -21,9 +21,13 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
-      quantity: {  // only quantity, no qty
+      quantity: {
         type: Number,
         required: true,
+      },
+      size: {  // Add size field for orders with sizes
+        type: String,
+        required: false,
       },
       image: {
         type: String,
@@ -75,6 +79,26 @@ const OrderSchema = new mongoose.Schema({
   deliveredAt: {
     type: Date,
   },
+  // Add missing tracking fields
+  trackingStatus: {
+    type: String,
+    required: false,
+    default: 'Order Received'
+  },
+  trackingHistory: [{
+    status: {
+      type: String,
+      required: true,
+    },
+    note: {
+      type: String,
+      required: false,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    }
+  }],
   trackingInfo: {
     type: String,
     required: false,

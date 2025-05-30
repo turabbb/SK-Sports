@@ -202,7 +202,7 @@ const UpdateTracking = () => {
                   </div>
                 </div>
 
-                {/* Order Items */}
+                {/* Order Items with Sizes */}
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                   <div className="space-y-3">
@@ -217,9 +217,17 @@ const UpdateTracking = () => {
                         )}
                         <div className="flex-1">
                           <h4 className="font-medium">{item.title}</h4>
-                          <p className="text-sm text-gray-600">
-                            Quantity: {item.quantity} × Rs. {item.price?.toFixed(0)}
-                          </p>
+                          <div className="flex items-center space-x-3 text-sm text-gray-600 mt-1">
+                            <p>
+                              Quantity: {item.quantity} × Rs. {item.price?.toFixed(0)}
+                            </p>
+                            {/* ✅ DISPLAY SIZE */}
+                            {item.size && (
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                                Size: {item.size}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">

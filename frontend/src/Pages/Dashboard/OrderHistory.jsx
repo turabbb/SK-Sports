@@ -321,7 +321,7 @@ const OrderHistory = () => {
                     </div>
                   </div>
 
-                  {/* Order Items */}
+                  {/* Order Items with Sizes */}
                   <div className="mt-6">
                     <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
                       <span className="mr-2">🛍️</span>
@@ -339,10 +339,18 @@ const OrderHistory = () => {
                           )}
                           <div className="flex-1">
                             <h5 className="font-medium text-gray-900">{item.title}</h5>
-                            <p className="text-sm text-gray-600">
-                              Qty: {item.quantity} × PKR {item.price?.toLocaleString()} = 
-                              <strong className="ml-1">PKR {(item.quantity * item.price)?.toLocaleString()}</strong>
-                            </p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-600">
+                              <p>
+                                Qty: {item.quantity} × PKR {item.price?.toLocaleString()} = 
+                                <strong className="ml-1">PKR {(item.quantity * item.price)?.toLocaleString()}</strong>
+                              </p>
+                              {/* ✅ DISPLAY SIZE */}
+                              {item.size && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                                  Size: {item.size}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}

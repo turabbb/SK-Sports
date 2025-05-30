@@ -1,9 +1,10 @@
 const Products = require('../Models/Products');
 const cloudinary = require('../Config/cloudinary');
+const { getSizesByCategory, isValidSizeForCategory } = require('../Config/sizeConfig');
 
 const AddProduct = async (req, res) => {
   try {
-    const { name, category, description, price, color, rating } = req.body;
+    const { name, category, description, price, color, rating, sizes } = req.body;
 
     const imageUrls = [];
 
@@ -20,6 +21,18 @@ const AddProduct = async (req, res) => {
       }
     }
 
+    // Handle sizes - either from request body or auto-generate based on category
+    let productSizes = [];
+    
+    if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+      // Validate provided sizes against category
+      const validSizes = sizes.filter(size => isValidSizeForCategory(category, size));
+      productSizes = validSizes.length > 0 ? validSizes : getSizesByCategory(category);
+    } else {
+      // Auto-generate sizes based on category
+      productSizes = getSizesByCategory(category);
+    }
+
     const newProduct = new Products({
       name,
       category,
@@ -28,6 +41,7 @@ const AddProduct = async (req, res) => {
       color,
       rating: parseFloat(rating) || 0,
       image: imageUrls,
+      sizes: productSizes,
     });
 
     const savedProduct = await newProduct.save();
@@ -38,33 +52,52 @@ const AddProduct = async (req, res) => {
   }
 };
 
-
-  const getProducts = async (req, res) => {
+const getProducts = async (req, res) => {
     try {
-        const { category, color, price, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
+        const { 
+            category, 
+            categories, // NEW: Handle multiple categories
+            color, 
+            price, 
+            minPrice, 
+            maxPrice, 
+            page = 1, 
+            limit = 10 
+        } = req.query;
 
         let filter = {};
 
-        // Category filter
+        // Category filter - UPDATED to handle both single category and multiple categories
         if (category && category !== "all") {
-            filter.category = category;
+            filter.category = { $regex: new RegExp(category, 'i') };
+        } else if (categories) {
+            // Handle multiple categories (comma-separated)
+            const categoryArray = categories.split(',').filter(cat => cat.trim() !== '');
+            if (categoryArray.length > 0) {
+                filter.category = { 
+                    $in: categoryArray.map(cat => new RegExp(cat.trim(), 'i'))
+                };
+            }
         }
 
         // Color filter
         if (color && color !== "all") {
-            filter.color = color;
+            filter.color = { $regex: new RegExp(color, 'i') };
         }
 
         // Price range filter (if both minPrice and maxPrice are provided)
         if (minPrice && maxPrice) {
-            filter.price = { $gte: minPrice, $lte: maxPrice };
+            filter.price = { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) };
         } else if (minPrice) {
-            filter.price = { $gte: minPrice }; // If only minPrice is provided
+            filter.price = { $gte: parseFloat(minPrice) }; // If only minPrice is provided
         } else if (maxPrice) {
-            filter.price = { $lte: maxPrice }; // If only maxPrice is provided
+            filter.price = { $lte: parseFloat(maxPrice) }; // If only maxPrice is provided
         } else if (price && price !== "all") {
-            filter.price = { $lte: price }; // Single price filter (not a range)
+            filter.price = { $lte: parseFloat(price) }; // Single price filter (not a range)
         }
+
+        // Debug logging
+        console.log('Filter object:', JSON.stringify(filter, null, 2));
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const totalProducts = await Products.countDocuments(filter);
@@ -75,6 +108,8 @@ const AddProduct = async (req, res) => {
             .populate()
             .sort({ createdAt: -1 });
 
+        console.log(`Found ${products.length} products out of ${totalProducts} total`);
+
         res.status(200).json({ products, totalPages, totalProducts });
 
     } catch (error) {
@@ -82,7 +117,6 @@ const AddProduct = async (req, res) => {
         res.status(500).send({ message: "Failure getting the products" });
     }
 }
-
 
 const getProductById = async (req, res) => {
     try {
@@ -102,7 +136,30 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const updatedProduct = await Products.findByIdAndUpdate(productId, { ...req.body }, { new: true });
+        const updateData = { ...req.body };
+
+        // If category is being updated, update sizes accordingly
+        if (updateData.category) {
+            const currentProduct = await Products.findById(productId);
+            if (currentProduct && currentProduct.category !== updateData.category) {
+                updateData.sizes = getSizesByCategory(updateData.category);
+            }
+        }
+
+        // If sizes are being manually updated, validate them
+        if (updateData.sizes && Array.isArray(updateData.sizes)) {
+            const product = await Products.findById(productId);
+            const category = updateData.category || product.category;
+            updateData.sizes = updateData.sizes.filter(size => 
+                isValidSizeForCategory(category, size)
+            );
+        }
+
+        const updatedProduct = await Products.findByIdAndUpdate(
+            productId, 
+            updateData, 
+            { new: true }
+        );
 
         if (!updatedProduct) {
             return res.status(404).send({ message: "Product not found" });
@@ -163,12 +220,30 @@ const relatedProducts = async (req, res) => {
 
         res.status(200).send(relatedProducts);
 
-
     } catch (error) {
         console.error("Error getting related products", error);
         res.status(500).send({ message: "Failure getting related products" });
     }
 }
 
+// New route to get available sizes for a category
+const getSizesForCategory = async (req, res) => {
+    try {
+        const { category } = req.params;
+        const sizes = getSizesByCategory(category);
+        res.status(200).json({ category, sizes });
+    } catch (error) {
+        console.error("Error getting sizes for category", error);
+        res.status(500).send({ message: "Failure getting sizes for category" });
+    }
+}
 
-module.exports = { AddProduct, getProducts, getProductById, updateProduct, deleteProduct, relatedProducts };
+module.exports = { 
+    AddProduct, 
+    getProducts, 
+    getProductById, 
+    updateProduct, 
+    deleteProduct, 
+    relatedProducts,
+    getSizesForCategory 
+};

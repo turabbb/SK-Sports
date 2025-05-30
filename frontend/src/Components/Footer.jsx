@@ -28,7 +28,7 @@ const Footer = () => {
                     </p>
                     <p>
                         <span><i className="ri-mail-fill"></i></span>
-                        sksports@gmail.com
+                        sksports1975@gmail.com
                     </p>
                     <p>
                         <span><i className="ri-phone-fill"></i></span>

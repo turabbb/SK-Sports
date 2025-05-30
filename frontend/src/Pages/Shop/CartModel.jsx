@@ -7,13 +7,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 const CartModel = ({ products, isOpen, onClose }) => {
     const dispatch = useDispatch();
 
-    const handleQuantity = (type, id) => {
-        dispatch(updateQuantity({ type, id }));
+    const handleQuantity = (type, item) => {
+        // Pass both _id and selectedSize to match cart items correctly
+        dispatch(updateQuantity({ 
+            type, 
+            _id: item._id,
+            selectedSize: item.selectedSize 
+        }));
     };
 
-    const handleRemove = (e, id) => {
+    const handleRemove = (e, item) => {
         e.preventDefault();
-        dispatch(removeFromCart({ id }));
+        // Pass both _id and selectedSize to match cart items correctly
+        dispatch(removeFromCart({ 
+            _id: item._id,
+            selectedSize: item.selectedSize 
+        }));
     };
 
     return (
@@ -48,24 +57,45 @@ const CartModel = ({ products, isOpen, onClose }) => {
                             ) : (
                                 products.map((item, index) => (
                                     <motion.div
-                                        key={`${item.id}-${index}`}  // <-- key fixed here
+                                        key={`${item._id}-${item.selectedSize || 'no-size'}-${index}`}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
                                         transition={{ duration: 0.3 }}
                                         className='flex items-center bg-white shadow-lg p-4 rounded-lg transform hover:scale-105 transition-all'
                                     >
-                                        <img src={item.image} className='size-14 object-cover rounded-lg mr-4' alt={item.name} />
+                                        <img 
+                                            src={Array.isArray(item.image) ? item.image[0] : item.image} 
+                                            className='size-14 object-cover rounded-lg mr-4' 
+                                            alt={item.name} 
+                                        />
                                         <div className='flex-1'>
                                             <h5 className='text-lg font-medium text-gray-900'>{item.name}</h5>
-                                            <p className='text-gray-600 text-sm'>Rs. {Number(item.price)}</p>
+                                            <p className='text-gray-600 text-sm'>Rs. {Number(item.price).toLocaleString()}</p>
+                                            {item.selectedSize && (
+                                                <p className='text-gray-500 text-xs'>Size: {item.selectedSize}</p>
+                                            )}
                                         </div>
                                         <div className='flex items-center'>
-                                            <button onClick={() => handleQuantity('decrement', item.id)} className='size-8 bg-gray-200 text-gray-700 hover:bg-red-400 hover:text-white rounded-full flex items-center justify-center transition-all'>-</button>
+                                            <button 
+                                                onClick={() => handleQuantity('decrement', item)} 
+                                                className='size-8 bg-gray-200 text-gray-700 hover:bg-red-400 hover:text-white rounded-full flex items-center justify-center transition-all'
+                                                disabled={item.quantity <= 1}
+                                            >
+                                                -
+                                            </button>
                                             <span className='mx-3 font-semibold text-lg'>{item.quantity}</span>
-                                            <button onClick={() => handleQuantity('increment', item.id)} className='size-8 bg-gray-200 text-gray-700 hover:bg-green-400 hover:text-white rounded-full flex items-center justify-center transition-all'>+</button>
+                                            <button 
+                                                onClick={() => handleQuantity('increment', item)} 
+                                                className='size-8 bg-gray-200 text-gray-700 hover:bg-green-400 hover:text-white rounded-full flex items-center justify-center transition-all'
+                                            >
+                                                +
+                                            </button>
                                         </div>
-                                        <button onClick={(e) => handleRemove(e, item.id)} className='ml-4 text-red-500 hover:text-red-800 text-xl transition-all'>
+                                        <button 
+                                            onClick={(e) => handleRemove(e, item)} 
+                                            className='ml-4 text-red-500 hover:text-red-800 text-xl transition-all'
+                                        >
                                             <i className="ri-delete-bin-line"></i>
                                         </button>
                                     </motion.div>

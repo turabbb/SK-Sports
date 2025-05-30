@@ -11,7 +11,8 @@ const SingleProduct = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalImageSrc, setModalImageSrc] = useState('');
-
+    const [availableSizes, setAvailableSizes] = useState([]);
+    const [sizesLoading, setSizesLoading] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -24,6 +25,51 @@ const SingleProduct = () => {
     });
 
     const [relatedProducts, setRelatedProducts] = useState([]);
+
+    // Fetch sizes based on product category or use product's sizes
+    useEffect(() => {
+        const fetchSizes = async () => {
+            if (singleProduct?.category) {
+                setSizesLoading(true);
+                try {
+                    // First, check if product already has sizes from backend
+                    if (singleProduct.sizes && Array.isArray(singleProduct.sizes) && singleProduct.sizes.length > 0) {
+                        setAvailableSizes(singleProduct.sizes);
+                        // Only set default size if sizes exist
+                        if (singleProduct.sizes.length > 0) {
+                            setSelectedSize(singleProduct.sizes[0]);
+                        }
+                    } else {
+                        // Fallback: fetch sizes based on category
+                        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/sizes/${singleProduct.category}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            setAvailableSizes(data.sizes || []);
+                            // Only set default size if sizes exist
+                            if (data.sizes && data.sizes.length > 0) {
+                                setSelectedSize(data.sizes[0]);
+                            } else {
+                                setSelectedSize(''); // No size needed for this category
+                            }
+                        } else {
+                            // Ultimate fallback - no sizes
+                            setAvailableSizes([]);
+                            setSelectedSize('');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching sizes:', error);
+                    // Fallback sizes
+                    setAvailableSizes(['S', 'M', 'L', 'XL']);
+                    setSelectedSize('M');
+                } finally {
+                    setSizesLoading(false);
+                }
+            }
+        };
+
+        fetchSizes();
+    }, [singleProduct?.category, singleProduct?.sizes]);
 
     useEffect(() => {
         if (singleProduct?.category && allProductsData?.products) {
@@ -59,12 +105,28 @@ const SingleProduct = () => {
     
 
     const handleAddToCart = (product) => {
-        dispatch(addToCart({
-            ...product,
-            quantity,
-            selectedSize: selectedSize || 'M',
-        }));
-        //navigate('/cart');
+        // Only check for size if the product category requires sizes
+        if (availableSizes.length > 0 && !selectedSize) {
+            alert('Please select a size before adding to cart');
+            return;
+        }
+        
+        const cartItem = {
+            _id: product._id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            category: product.category,
+            color: product.color,
+            description: product.description,
+            rating: product.rating,
+            quantity: parseInt(quantity), // Ensure it's a number
+            selectedSize: selectedSize || null, // null for products without sizes
+        };
+        
+        console.log('Adding to cart:', cartItem); // Debug log
+        
+        dispatch(addToCart(cartItem));
     };
 
     const handlePrevImage = () => {
@@ -82,10 +144,6 @@ const SingleProduct = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [id]);
-    
-    
-
-    const sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
 
     if (isLoading) return <div className="section__container">Loading...</div>;
     if (error) return <div className="section__container">Error loading product: {error.message || 'Unknown error'}</div>;
@@ -135,7 +193,6 @@ const SingleProduct = () => {
                 </div>
             )}
 
-
             <section className='section__container py-12'>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     {/* Left - Carousel Image */}
@@ -182,7 +239,6 @@ const SingleProduct = () => {
                                             setModalImageSrc(singleProduct.image[index]);
                                             setIsModalOpen(true);
                                         }}
-
                                         className={`w-20 h-20 object-cover border-2 rounded cursor-pointer ${currentImageIndex === index ? 'border-primary' : 'border-transparent'}`}
                                     />
                                 ))}
@@ -218,24 +274,35 @@ const SingleProduct = () => {
                             Shipping internationally available. Please contact us on WhatsApp for details and customization options.
                         </p>
 
-                        {/* Sizes */}
-                        <div className="space-y-3">
-                            <label className="block text-sm font-medium text-gray-700">Size:</label>
-                            <div className="flex flex-wrap gap-2">
-                                {sizes.map((size) => (
-                                    <button
-                                        key={size}
-                                        className={`px-4 py-2 border rounded-md transition-all ${selectedSize === size
-                                            ? 'border-primary bg-primary text-white'
-                                            : 'border-gray-300 hover:border-primary'
-                                            }`}
-                                        onClick={() => setSelectedSize(size)}
-                                    >
-                                        {size}
-                                    </button>
-                                ))}
+                        {/* Dynamic Sizes - Only show if product has sizes */}
+                        {availableSizes.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Size: 
+                                    {sizesLoading && <span className="ml-2 text-xs text-gray-500">(Loading sizes...)</span>}
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {availableSizes.map((size) => (
+                                        <button
+                                            key={size}
+                                            className={`px-4 py-2 border rounded-md transition-all ${selectedSize === size
+                                                ? 'border-primary bg-primary text-white'
+                                                : 'border-gray-300 hover:border-primary'
+                                                }`}
+                                            onClick={() => setSelectedSize(size)}
+                                            disabled={sizesLoading}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
+                                {selectedSize && (
+                                    <p className="text-sm text-gray-600">
+                                        Selected size: <span className="font-medium">{selectedSize}</span>
+                                    </p>
+                                )}
                             </div>
-                        </div>
+                        )}
 
                         {/* Quantity & Cart */}
                         <div className="flex items-center gap-4">
@@ -250,7 +317,10 @@ const SingleProduct = () => {
                                     type="number"
                                     min="1"
                                     value={quantity}
-                                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                    onChange={(e) => {
+                                        const newQuantity = Math.max(1, parseInt(e.target.value) || 1);
+                                        setQuantity(newQuantity);
+                                    }}
                                     className="w-16 text-center py-2"
                                 />
                                 <button
@@ -265,9 +335,14 @@ const SingleProduct = () => {
                                     e.stopPropagation();
                                     handleAddToCart(singleProduct);
                                 }}
-                                className="flex-1 bg-primary text-white py-2 px-6 rounded-md hover:bg-primary-dark transition-colors"
+                                disabled={sizesLoading || (availableSizes.length > 0 && !selectedSize)}
+                                className={`flex-1 py-2 px-6 rounded-md transition-colors ${
+                                    sizesLoading || (availableSizes.length > 0 && !selectedSize)
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-primary text-white hover:bg-primary-dark'
+                                }`}
                             >
-                                ADD TO CART
+                                {sizesLoading ? 'Loading...' : 'ADD TO CART'}
                             </button>
                         </div>
 
@@ -332,9 +407,16 @@ const SingleProduct = () => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
                                                         dispatch(addToCart({
-                                                            ...relatedProduct,
+                                                            _id: relatedProduct._id,
+                                                            name: relatedProduct.name,
+                                                            price: relatedProduct.price,
+                                                            image: relatedProduct.image,
+                                                            category: relatedProduct.category,
+                                                            color: relatedProduct.color,
+                                                            description: relatedProduct.description,
+                                                            rating: relatedProduct.rating,
                                                             quantity: 1,
-                                                            selectedSize: 'M'
+                                                            selectedSize: relatedProduct.sizes?.[0] || null
                                                         }));
                                                     }}
                                                 >

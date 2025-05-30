@@ -11,6 +11,9 @@ import Dashboard from "../Pages/Dashboard/Dashboard";
 import PrivateRoute from "./PrivateRoute";
 import Checkout from "../Pages/Shop/Checkout";
 import TrackOrder from "../Pages/Search/TrackOrder";
+import SportswearPage from "../Pages/Shop/SportswearPage";
+import CasualPage from "../Pages/Shop/CasualPage";
+import AccessoriesPage from "../Pages/Shop/AccessoriesPage";
 
 const router = createBrowserRouter([
     {
@@ -24,6 +27,9 @@ const router = createBrowserRouter([
             { path: "/sports/:id", element: <SingleProduct /> },
             {path: "/checkout", element: <Checkout />},
             {path: "/track", element: <TrackOrder />},
+            {path: "/sportswear", element: <SportswearPage />},
+            {path: "/casual", element: <CasualPage />},
+            {path: "/accessories", element: <AccessoriesPage />},
         ]
     },
     

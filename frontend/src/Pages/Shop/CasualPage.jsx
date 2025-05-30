@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import ProductCards from './ProductCards';
 import SportsPageFilter from './SportsPageFilter';
 import { useFetchAllProductsQuery } from '../../Redux/Features/Products/products';
 
 const filters = {
     categories: [
-        'All', 'Hard Ball Bat', 'Tape Ball Bat', 'Pads', 'Thigh Pads', 'Gloves', 'Helmet', 'Guard', 'Tape Ball', 'Hard Ball', 'Kit Bags',
-        'Cricket Spikes', 'Football Boots', 'Football', 'Gym Accessories', 'SportsWear Shirts', 'Trousers', 'Hoodies', 'Zippers', 'TrackSuits',
-        'Shorts', 'Caps', 'Custom Shirts', 'Indoor Games'
+        'All', 'Trousers', 'Hoodies', 'Zippers', 'TrackSuits', 'Shorts', 'Caps', 'Custom Shirts'
     ],
 
     priceRange: [
@@ -21,8 +18,10 @@ const filters = {
     ],
 }
 
-const SportsPage = () => {
-    const location = useLocation();
+// Default categories for Casual page
+const defaultCategories = ['Trousers', 'Hoodies', 'Zippers', 'TrackSuits', 'Shorts', 'Caps', 'Custom Shirts'];
+
+const CasualPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(8);
 
@@ -33,24 +32,6 @@ const SportsPage = () => {
     });
 
     const { category, color, priceRange } = filteredProducts;
-
-    // Parse URL parameters for initial filtering
-    useEffect(() => {
-        const urlParams = new URLSearchParams(location.search);
-        const categoryFromUrl = urlParams.get('category');
-        const categoriesFromUrl = urlParams.get('categories');
-        const colorFromUrl = urlParams.get('color');
-        const priceFromUrl = urlParams.get('price');
-
-        // Set initial filters based on URL parameters
-        if (categoryFromUrl || categoriesFromUrl || colorFromUrl || priceFromUrl) {
-            setFilteredProducts({
-                category: categoryFromUrl || 'All',
-                color: colorFromUrl || 'All',
-                priceRange: priceFromUrl || ''
-            });
-        }
-    }, [location.search]);
 
     // Make sure the price range is correctly split
     const [minPrice, maxPrice] = priceRange ? priceRange.split('-').map(Number) : [0, Infinity];
@@ -66,34 +47,25 @@ const SportsPage = () => {
         limit: productsPerPage
     };
 
-    // Handle URL parameters for categories
-    const urlParams = new URLSearchParams(location.search);
-    const categoryFromUrl = urlParams.get('category');
-    const categoriesFromUrl = urlParams.get('categories');
-
-    // Priority: User filter selection > URL parameters
-    if (category !== 'All') {
-        // User has selected a specific category from filter
+    // Handle category filtering
+    if (category === 'All') {
+        // Show all products from default categories when "All" is selected
+        queryParams.categories = defaultCategories.join(',');
+    } else {
+        // Show specific category when selected
         queryParams.category = category;
-    } else if (categoryFromUrl) {
-        // URL has single category parameter
-        queryParams.category = categoryFromUrl;
-    } else if (categoriesFromUrl) {
-        // URL has multiple categories parameter
-        queryParams.categories = categoriesFromUrl;
     }
-    // If none of the above, show all products (default behavior)
 
     // Make the request using query params
     const { data: { products = [], totalPages, totalProducts } = {}, error, isLoading } = useFetchAllProductsQuery(queryParams);
 
-    console.log('Query params being sent:', queryParams);
-    console.log('Products received:', products);
+    console.log(products);
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        // Reset to page 1 when filters change
         setCurrentPage(1);
-    }, [category, color, priceRange, location.search]);
+    }, [category, color, priceRange]);
 
     const clearFilters = () => {
         setFilteredProducts({
@@ -124,38 +96,11 @@ const SportsPage = () => {
         return `Showing ${startProduct} - ${endProduct} of ${totalProducts} Products`;
     };
 
-    // Dynamic page title based on URL parameters
-    const getPageTitle = () => {
-        const urlParams = new URLSearchParams(location.search);
-        const categoryFromUrl = urlParams.get('category');
-        const categoriesFromUrl = urlParams.get('categories');
-
-        if (categoryFromUrl === 'Custom Shirts') return 'Custom Kits';
-        if (categoriesFromUrl) {
-            if (categoriesFromUrl.includes('Hard Ball Bat') || categoriesFromUrl.includes('Cricket')) return 'Cricket Equipment';
-            if (categoriesFromUrl.includes('Football')) return 'Football Equipment';
-        }
-        return 'Explore Our Collection';
-    };
-
-    const getPageSubtitle = () => {
-        const urlParams = new URLSearchParams(location.search);
-        const categoryFromUrl = urlParams.get('category');
-        const categoriesFromUrl = urlParams.get('categories');
-
-        if (categoryFromUrl === 'Custom Shirts') return 'Browse our custom sports shirts and team kits.';
-        if (categoriesFromUrl) {
-            if (categoriesFromUrl.includes('Hard Ball Bat') || categoriesFromUrl.includes('Cricket')) return 'Browse through our premium cricket gear and equipment.';
-            if (categoriesFromUrl.includes('Football')) return 'Browse through our football boots and equipment.';
-        }
-        return 'Browse through our wide range of premium sports gear and apparel.';
-    };
-
     return (
         <>
             <section className='section__container bg-primary-light'>
-                <h2 className='section__header capitalize'>{getPageTitle()}</h2>
-                <p className='section__subheader'>{getPageSubtitle()}</p>
+                <h2 className='section__header capitalize'>Casual Wear Collection</h2>
+                <p className='section__subheader'>Browse through our comfortable and stylish casual clothing.</p>
             </section>
 
             <section className='section__container'>
@@ -215,4 +160,4 @@ const SportsPage = () => {
     );
 }
 
-export default SportsPage;
+export default CasualPage;

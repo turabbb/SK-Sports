@@ -13,12 +13,21 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         addToCart: (state, action) => {
-            const isExist = state.items.find(item => item._id === action.payload._id);
+            // Check for existing item considering both ID and size
+            const isExist = state.items.find(item => 
+                item._id === action.payload._id && 
+                item.selectedSize === action.payload.selectedSize
+            );
 
             if (!isExist) {
-                state.items.push({ ...action.payload, quantity: 1 });
+                // Add new item with the quantity from payload
+                state.items.push({ 
+                    ...action.payload, 
+                    quantity: action.payload.quantity || 1 // Use payload quantity or default to 1
+                });
             } else {
-                isExist.quantity += 1;
+                // Add the payload quantity to existing item
+                isExist.quantity += (action.payload.quantity || 1);
             }
 
             state.selectedItems = setSelectedItems(state);
@@ -29,7 +38,9 @@ const cartSlice = createSlice({
 
         updateQuantity: (state, action) => {
             state.items = state.items.map(item => {
-                if (item._id === action.payload._id) {
+                // Update quantity considering both ID and size
+                if (item._id === action.payload._id && 
+                    item.selectedSize === action.payload.selectedSize) {
                     if (action.payload.type === 'increment') {
                         item.quantity += 1;
                     } else if (action.payload.type === 'decrement' && item.quantity > 1) {
@@ -46,7 +57,12 @@ const cartSlice = createSlice({
         },
 
         removeFromCart: (state, action) => {
-            state.items = state.items.filter(item => item._id !== action.payload._id);
+            // Remove item considering both ID and size
+            state.items = state.items.filter(item => 
+                !(item._id === action.payload._id && 
+                  item.selectedSize === action.payload.selectedSize)
+            );
+            
             state.selectedItems = setSelectedItems(state);
             state.totalPrice = setTotalPrice(state);
             state.delivery = setDelivery(state);
@@ -59,6 +75,22 @@ const cartSlice = createSlice({
             state.totalPrice = 0;
             state.delivery = 0;
             state.grandTotal = 0;
+        },
+
+        // New reducer to set exact quantity (useful for cart page)
+        setQuantity: (state, action) => {
+            state.items = state.items.map(item => {
+                if (item._id === action.payload._id && 
+                    item.selectedSize === action.payload.selectedSize) {
+                    item.quantity = Math.max(1, action.payload.quantity); // Ensure minimum 1
+                }
+                return item;
+            });
+
+            state.selectedItems = setSelectedItems(state);
+            state.totalPrice = setTotalPrice(state);
+            state.delivery = setDelivery(state);
+            state.grandTotal = setGrandTotal(state);
         },
     },
 });
@@ -81,7 +113,8 @@ export const {
     addToCart,
     updateQuantity,
     removeFromCart,
-    clearCart
+    clearCart,
+    setQuantity
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

@@ -10,16 +10,42 @@ const products = createApi({
     tagTypes: ['Products'],
     endpoints: (builder) => ({
         fetchAllProducts: builder.query({
-            query: ({category, color, minPrice, maxPrice, page = 1, limit = 10}) => {
-                const queryParams = new URLSearchParams({
-                    category: category || '',
-                    color: color || '',
-                    minPrice: minPrice || 0,
-                    maxPrice: maxPrice || '',
+            query: ({
+                category, 
+                categories, // NEW: Support for multiple categories
+                color, 
+                minPrice, 
+                maxPrice, 
+                page = 1, 
+                limit = 10
+            }) => {
+                // Build query parameters object
+                const params = {
                     page: page.toString(),
                     limit: limit.toString(),
-                }).toString();
-                return `/?${queryParams}`
+                };
+
+                // Add category or categories parameter
+                if (category) {
+                    params.category = category;
+                } else if (categories) {
+                    params.categories = categories;
+                }
+
+                // Add other parameters only if they have values
+                if (color) {
+                    params.color = color;
+                }
+                if (minPrice) {
+                    params.minPrice = minPrice.toString();
+                }
+                if (maxPrice) {
+                    params.maxPrice = maxPrice.toString();
+                }
+
+                const queryParams = new URLSearchParams(params).toString();
+                console.log('RTK Query params:', params); // Debug logging
+                return `/?${queryParams}`;
             },
             providesTags: ["Products"], 
         }),

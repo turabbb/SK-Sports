@@ -45,7 +45,11 @@ const createOrder = async (req, res) => {
     // Debug the parsed data
     console.log("Parsed customer info:", parsedCustomerInfo);
     console.log("Parsed shipping address:", parsedShippingAddress);
-    console.log("Parsed order items (sample):", parsedOrderItems.length > 0 ? parsedOrderItems[0] : 'No items');
+    console.log("Parsed order items (with sizes):", parsedOrderItems.map(item => ({
+      name: item.name,
+      selectedSize: item.selectedSize,
+      quantity: item.quantity
+    })));
     console.log("Parsed total price:", parsedTotalPrice);
 
     // Validate required fields
@@ -76,43 +80,58 @@ const createOrder = async (req, res) => {
       }
     }
 
-    // Transform cart items to match the Order schema's expected format
+    // ✅ Transform cart items to match the Order schema's expected format (WITH SIZES)
     const transformedItems = parsedOrderItems.map(item => ({
       title: item.name || item.title || "Untitled Product",
       price: item.price,
-      quantity: item.quantity ?? item.qty ?? 1,  // use quantity, fallback to qty, fallback to 1
+      quantity: item.quantity ?? item.qty ?? 1,
+      size: item.selectedSize || null, // ✅ FIXED: Capture the selected size
       image: Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : (typeof item.image === 'string' ? item.image : ""),
       product: item.product || item._id || null,
     }));
 
-    console.log("Transformed order items:", transformedItems);
+    console.log("Transformed order items with sizes:", transformedItems.map(item => ({
+      title: item.title,
+      size: item.size,
+      quantity: item.quantity
+    })));
 
-    const orderNumber = await generateOrderNumber(); // ✅ Generate orderNumber
-    console.log("Generated order number:", orderNumber); // Debug log
+    const orderNumber = await generateOrderNumber();
+    console.log("Generated order number:", orderNumber);
 
-    // Create order with or without screenshot URL
+    // Create order with size information
     const order = new Order({
       customerInfo: parsedCustomerInfo,
-      orderItems: transformedItems,
+      orderItems: transformedItems, // Now includes sizes
       shippingAddress: parsedShippingAddress,
       totalPrice: parsedTotalPrice,
       paymentMethod,
-      paymentScreenshot: paymentScreenshotUrl, // null if not uploaded
+      paymentScreenshot: paymentScreenshotUrl,
       isPaid: paymentMethod === "Pay Now",
       paidAt: paymentMethod === "Pay Now" ? new Date() : null,
       orderNumber,
-      trackingStatus: 'Order Received', // Set initial tracking status
+      trackingStatus: 'Order Received',
+      // Initialize tracking history
+      trackingHistory: [{
+        status: 'Order Received',
+        note: 'Order has been placed successfully',
+        updatedAt: new Date()
+      }]
     });
 
     console.log("Order object before save:", {
       orderNumber: order.orderNumber,
       customerInfo: order.customerInfo,
-      totalPrice: order.totalPrice
-    }); // Debug log
+      totalPrice: order.totalPrice,
+      itemsWithSizes: order.orderItems.map(item => ({ title: item.title, size: item.size }))
+    });
 
     const createdOrder = await order.save();
     console.log("Order created successfully with ID:", createdOrder._id);
-    console.log("Saved order number:", createdOrder.orderNumber); // Debug log
+    console.log("Order items with sizes saved:", createdOrder.orderItems.map(item => ({ 
+      title: item.title, 
+      size: item.size 
+    })));
 
     res.status(201).json(createdOrder);
 
@@ -132,7 +151,7 @@ const createOrder = async (req, res) => {
 // Get All Orders
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 });  // Most recent orders first
+    const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -174,6 +193,11 @@ const updateTracking = async (req, res) => {
     // Update tracking status
     order.trackingStatus = trackingStatus;
     
+    // Initialize trackingHistory if it doesn't exist (for older orders)
+    if (!order.trackingHistory) {
+      order.trackingHistory = [];
+    }
+    
     // Add to tracking history
     order.trackingHistory.push({
       status: trackingStatus,
@@ -209,14 +233,15 @@ const getOrderByNumber = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Return limited information for customer tracking
+    // Return limited information for customer tracking (including sizes)
     const trackingInfo = {
       orderNumber: order.orderNumber,
       trackingStatus: order.trackingStatus,
-      trackingHistory: order.trackingHistory,
+      trackingHistory: order.trackingHistory || [],
       orderItems: order.orderItems.map(item => ({
         title: item.title,
         quantity: item.quantity,
+        size: item.size, // ✅ Include size in tracking info
         image: item.image
       })),
       totalPrice: order.totalPrice,
