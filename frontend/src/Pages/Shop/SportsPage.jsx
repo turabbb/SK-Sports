@@ -259,13 +259,13 @@ const SportsPage = () => {
                                     <span className='sm:hidden'>Prev</span>
                                 </button>
 
-                                <div className='flex gap-1 sm:gap-2 max-w-full overflow-x-auto'>
+                                <div className='flex gap-1 sm:gap-2'>
                                     {
                                         [...Array(totalPages)].map((_, index) => (
                                             <button
                                                 onClick={() => handlePageChange(index + 1)}
                                                 key={index}
-                                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 text-sm sm:text-base flex-shrink-0
+                                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 text-sm sm:text-base
                                                     ${currentPage === index + 1
                                                         ? 'bg-primary text-white scale-110 shadow-lg'
                                                         : 'bg-gray-200 text-gray-700 hover:bg-primary hover:text-white hover:scale-105 shadow-md'
