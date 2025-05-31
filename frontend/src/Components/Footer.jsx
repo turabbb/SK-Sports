@@ -12,6 +12,7 @@ const Footer = () => {
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3402.0450778880013!2d74.39490397624137!3d31.495444748371973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39190550d1ade647%3A0xa9ff6510d8cd3d9a!2sSk%20Sports!5e0!3m2!1sen!2s!4v1737979030106!5m2!1sen!2s"
                             width="100%"
                             height="450"
+                            className="h-64 sm:h-80 md:h-96 lg:h-[450px]"
                             style={{ border: 0 }}
                             allowFullScreen=""
                             loading="lazy"
@@ -37,7 +38,7 @@ const Footer = () => {
 
                     <h4 className='mt-9'>FOLLOW US</h4>
 
-                    <div className="social-icons flex justify-start gap-6 mt-4">
+                    <div className="social-icons flex justify-start gap-4 sm:gap-6 mt-4">
                         <a
                             href="https://www.facebook.com/khalid03202440328"
                             target="_blank"

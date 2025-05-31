@@ -24,6 +24,7 @@ const defaultCategories = ['Trousers', 'Hoodies', 'Zippers', 'TrackSuits', 'Shor
 const CasualPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(8);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     const [filteredProducts, setFilteredProducts] = useState({
         category: 'All',
@@ -82,8 +83,8 @@ const CasualPage = () => {
         }
     }
 
-    if (isLoading) return <div className='flex justify-center items-center h-screen'>Loading...</div>;
-    if (error) return <div className='flex justify-center items-center h-screen'>Error loading products</div>;
+    if (isLoading) return <div className='flex justify-center items-center h-screen text-base sm:text-lg'>Loading...</div>;
+    if (error) return <div className='flex justify-center items-center h-screen text-base sm:text-lg'>Error loading products</div>;
 
     const startProduct = (currentPage - 1) * productsPerPage + 1;
     const endProduct = startProduct + products.length - 1;
@@ -98,58 +99,136 @@ const CasualPage = () => {
 
     return (
         <>
-            <section className='section__container bg-primary-light'>
-                <h2 className='section__header capitalize'>Casual Wear Collection</h2>
-                <p className='section__subheader'>Browse through our comfortable and stylish casual clothing.</p>
+            <section className='section__container bg-primary-light px-4 sm:px-6 lg:px-8 py-6 sm:py-8'>
+                <h2 className='section__header capitalize text-2xl sm:text-3xl lg:text-4xl'>Casual Wear Collection</h2>
+                <p className='section__subheader text-sm sm:text-base lg:text-lg'>Browse through our comfortable and stylish casual clothing.</p>
             </section>
 
-            <section className='section__container'>
-                <div className='flex flex-col md:flex-row md:gap-12 gap-8'>
-                    <SportsPageFilter
-                        filters={filters}
-                        filteredProducts={filteredProducts}
-                        setFilteredProducts={setFilteredProducts}
-                        clearFilters={clearFilters}
-                    />
+            <section className='section__container px-4 sm:px-6 lg:px-8 py-6 sm:py-8'>
+                <div className='flex flex-col lg:flex-row lg:gap-8 xl:gap-12 gap-6 sm:gap-8'>
+                    {/* Mobile Filter Toggle */}
+                    <div className='lg:hidden'>
+                        <button
+                            onClick={() => setShowMobileFilters(!showMobileFilters)}
+                            className='w-full flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-shadow'
+                        >
+                            <div className='flex items-center gap-3'>
+                                <i className="ri-filter-3-line text-xl text-primary"></i>
+                                <span className='font-medium text-gray-900'>Filters & Categories</span>
+                            </div>
+                            <i className={`ri-arrow-${showMobileFilters ? 'up' : 'down'}-s-line text-xl text-gray-500 transition-transform`}></i>
+                        </button>
+                        
+                        {/* Mobile Filter Panel */}
+                        <div className={`mt-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-300 overflow-hidden ${
+                            showMobileFilters ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+                        }`}>
+                            <div className='p-4 space-y-6'>
+                                {/* Mobile Categories Filter */}
+                                <div>
+                                    <h4 className='font-semibold text-gray-900 mb-3 flex items-center gap-2'>
+                                        <i className="ri-list-check text-primary"></i>
+                                        Categories
+                                    </h4>
+                                    <select
+                                        value={category}
+                                        onChange={(e) => setFilteredProducts(prev => ({ ...prev, category: e.target.value }))}
+                                        className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary'
+                                    >
+                                        {filters.categories.map((cat) => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                    <div>
-                        <h3 className='text-xl font-medium mb-4'>
+                                {/* Mobile Price Range Filter */}
+                                <div>
+                                    <h4 className='font-semibold text-gray-900 mb-3 flex items-center gap-2'>
+                                        <i className="ri-money-dollar-circle-line text-primary"></i>
+                                        Price Range
+                                    </h4>
+                                    <select
+                                        value={priceRange}
+                                        onChange={(e) => setFilteredProducts(prev => ({ ...prev, priceRange: e.target.value }))}
+                                        className='w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary'
+                                    >
+                                        <option value="">All Prices</option>
+                                        {filters.priceRange.map((range) => (
+                                            <option key={range.label} value={`${range.min}-${range.max}`}>
+                                                {range.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                {/* Clear Filters Button */}
+                                <div className='pt-4 border-t border-gray-200'>
+                                    <button
+                                        onClick={() => {
+                                            clearFilters();
+                                            setShowMobileFilters(false);
+                                        }}
+                                        className='w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium'
+                                    >
+                                        Clear All Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Desktop Filter Sidebar */}
+                    <div className='hidden lg:block lg:w-1/4 xl:w-1/5'>
+                        <SportsPageFilter
+                            filters={filters}
+                            filteredProducts={filteredProducts}
+                            setFilteredProducts={setFilteredProducts}
+                            clearFilters={clearFilters}
+                        />
+                    </div>
+
+                    <div className='w-full lg:w-3/4 xl:w-4/5'>
+                        <h3 className='text-lg sm:text-xl font-medium mb-4 sm:mb-6'>
                             {getProductCountDisplay()}
                         </h3>
                         <ProductCards products={products} />
 
                         {totalPages > 1 && (
-                            <div className='mt-10 flex justify-center items-center gap-2'>
+                            <div className='mt-8 sm:mt-10 flex justify-center items-center gap-1 sm:gap-2 flex-wrap'>
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
-                                    className='px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='px-3 sm:px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base'
                                     disabled={currentPage === 1}
                                 >
-                                    Previous
+                                    <span className='hidden sm:inline'>Previous</span>
+                                    <span className='sm:hidden'>Prev</span>
                                 </button>
 
-                                {
-                                    [...Array(totalPages)].map((_, index) => (
-                                        <button
-                                            onClick={() => handlePageChange(index + 1)}
-                                            key={index}
-                                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 
-                                                ${currentPage === index + 1
-                                                    ? 'bg-primary text-white scale-110 shadow-lg'
-                                                    : 'bg-gray-200 text-gray-700 hover:bg-primary hover:text-white hover:scale-105 shadow-md'
-                                                }`}
-                                        >
-                                            {index + 1}
-                                        </button>
-                                    ))
-                                }
+                                <div className='flex gap-1 sm:gap-2 max-w-full overflow-x-auto'>
+                                    {
+                                        [...Array(totalPages)].map((_, index) => (
+                                            <button
+                                                onClick={() => handlePageChange(index + 1)}
+                                                key={index}
+                                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 text-sm sm:text-base flex-shrink-0
+                                                    ${currentPage === index + 1
+                                                        ? 'bg-primary text-white scale-110 shadow-lg'
+                                                        : 'bg-gray-200 text-gray-700 hover:bg-primary hover:text-white hover:scale-105 shadow-md'
+                                                    }`}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))
+                                    }
+                                </div>
 
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
-                                    className='px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='px-3 sm:px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base'
                                     disabled={currentPage === totalPages}
                                 >
-                                    Next
+                                    <span className='hidden sm:inline'>Next</span>
+                                    <span className='sm:hidden'>Next</span>
                                 </button>
                             </div>
                         )}

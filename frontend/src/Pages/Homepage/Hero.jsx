@@ -30,14 +30,14 @@ const Hero = () => {
   ];
 
   return (
-    <section className="section__container hero__container">
+    <section className="section__container hero__container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 p-4 sm:p-6">
       {cards.map((card) => (
         <Link key={card.id} to={card.link} className="hero__card">
-          <img src={card.image} alt={card.title} /> 
+          <img src={card.image} alt={card.title} className="w-full h-auto object-cover" /> 
           <div className="hero__content">
-            <p>{card.trend}</p>
-            <h4>{card.title}</h4>
-            <span>Discover More</span>
+            <p className="text-xs sm:text-sm">{card.trend}</p>
+            <h4 className="text-base sm:text-lg lg:text-xl">{card.title}</h4>
+            <span className="text-xs sm:text-sm">Discover More</span>
           </div>
         </Link>
       ))}

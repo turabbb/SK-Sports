@@ -57,7 +57,7 @@ const Search = () => {
     if (isLoading) {
         return (
             <div className="min-h-screen">
-                <section className='section__container bg-primary-light'>
+                <section className='section__container' style={{ backgroundColor: '#F4E5EC' }}>
                     <h2 className='section__header capitalize'>Search Products</h2>
                     <p className='section__subheader'>Explore premium sports gear, custom kits, and accessories designed for performance, style, and every game.</p>
                 </section>
@@ -70,7 +70,8 @@ const Search = () => {
                             animate={{ opacity: 1 }}
                         >
                             <motion.div
-                                className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+                                className="w-12 h-12 border-4 border-t-transparent rounded-full"
+                                style={{ borderColor: '#F4E5EC', borderTopColor: 'transparent' }}
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                             />
@@ -86,7 +87,7 @@ const Search = () => {
     if (isError) {
         return (
             <div className="min-h-screen">
-                <section className='section__container bg-primary-light'>
+                <section className='section__container' style={{ backgroundColor: '#F4E5EC' }}>
                     <h2 className='section__header capitalize'>Search Products</h2>
                     <p className='section__subheader'>Explore premium sports gear, custom kits, and accessories designed for performance, style, and every game.</p>
                 </section>
@@ -100,7 +101,10 @@ const Search = () => {
                         <div className="text-red-500 text-xl mb-4">⚠️ Error loading products</div>
                         <motion.button
                             onClick={() => refetch()}
-                            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                            className="px-6 py-2 text-white rounded-lg transition-colors"
+                            style={{ backgroundColor: '#F4E5EC' }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#E8D0DC'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#F4E5EC'}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                         >
@@ -114,7 +118,7 @@ const Search = () => {
 
     return (
         <>
-            <section className='section__container bg-primary-light'>
+            <section className='section__container' style={{ backgroundColor: '#F4E5EC' }}>
                 <h2 className='section__header capitalize'>Search Products</h2>
                 <p className='section__subheader'>Explore premium sports gear, custom kits, and accessories designed for performance, style, and every game.</p>
             </section>
@@ -134,7 +138,10 @@ const Search = () => {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') handleSearch();
                             }}
-                            className='search-bar w-full p-3 pl-12 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200'
+                            className='search-bar w-full p-3 pl-12 border-2 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200'
+                            style={{ focusRingColor: '#F4E5EC' }}
+                            onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px #F4E5EC'}
+                            onBlur={(e) => e.target.style.boxShadow = 'none'}
                             placeholder='Search for products by name, category, color...' 
                         />
                         <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -156,7 +163,10 @@ const Search = () => {
 
                     <motion.button
                         onClick={handleSearch}
-                        className='search-button w-full md:w-auto py-3 px-8 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-semibold shadow-lg'
+                        className='search-button w-full md:w-auto py-3 px-8 text-black rounded-xl transition-colors font-semibold shadow-lg'
+                        style={{ backgroundColor: '#F4E5EC' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#E8D0DC'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#F4E5EC'}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                     >
@@ -176,12 +186,12 @@ const Search = () => {
                             <span className="text-gray-600">
                                 {search ? (
                                     <>
-                                        Showing <span className="font-semibold text-primary">{filteredProducts.length}</span> results for 
-                                        <span className="font-semibold text-primary"> "{search}"</span>
+                                        Showing <span className="font-semibold" style={{ color: '#F4E5EC' }}>{filteredProducts.length}</span> results for 
+                                        <span className="font-semibold" style={{ color: '#F4E5EC' }}> "{search}"</span>
                                     </>
                                 ) : (
                                     <>
-                                        Showing <span className="font-semibold text-primary">{filteredProducts.length}</span> total products
+                                        Showing <span className="font-semibold" style={{ color: '#F4E5EC' }}>{filteredProducts.length}</span> total products
                                     </>
                                 )}
                             </span>
@@ -215,7 +225,10 @@ const Search = () => {
                         </p>
                         <motion.button
                             onClick={() => setSearch('')}
-                            className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors font-semibold"
+                            className="px-6 py-3 text-white rounded-xl transition-colors font-semibold"
+                            style={{ backgroundColor: '#F4E5EC' }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#E8D0DC'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = '#F4E5EC'}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >

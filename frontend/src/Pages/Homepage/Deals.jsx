@@ -130,27 +130,27 @@ const Deals = () => {
 
     return (
         <motion.section 
-            className='section__container deals__container'
+            className='section__container deals__container grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center p-4 sm:p-6 lg:p-8'
             variants={containerVariants}
             initial="hidden"
             animate={isVisible ? "visible" : "hidden"}
         >
             <motion.div 
-                className='deals__image'
+                className='deals__image order-2 lg:order-1 w-full max-w-md lg:max-w-none mx-auto'
                 variants={itemVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
             >
-                <img src={deals} alt="deal" />
+                <img src={deals} alt="deal" className='w-full h-auto object-cover rounded-lg' />
             </motion.div>
 
             <motion.div 
-                className='deals__content'
+                className='deals__content order-1 lg:order-2 text-center lg:text-left'
                 variants={itemVariants}
             >
                 <motion.h5
                     variants={itemVariants}
-                    className="relative"
+                    className="relative text-sm sm:text-base lg:text-lg mb-3 sm:mb-4"
                 >
                     <motion.span
                         initial={{ backgroundPosition: "0% 50%" }}
@@ -168,22 +168,22 @@ const Deals = () => {
                     </motion.span>
                 </motion.h5>
 
-                <motion.h4 variants={itemVariants}>
+                <motion.h4 variants={itemVariants} className='text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-4 lg:mb-6'>
                     Deals of the Month
                 </motion.h4>
 
-                <motion.p variants={itemVariants}>
+                <motion.p variants={itemVariants} className='text-sm sm:text-base lg:text-lg mb-6 lg:mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0'>
                     Gear up for greatness with unbeatable deals on top-quality sports gear! Shop now and score big savings on 
                     cricket kits, football essentials, and accessories designed for champions.
                 </motion.p>
 
                 <motion.div 
-                    className='deals__countdown flex-wrap'
+                    className='deals__countdown grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 max-w-md mx-auto lg:mx-0'
                     variants={countdownVariants}
                 >
                     <AnimatePresence mode="wait">
                         <motion.div 
-                            className='deals__countdown__card'
+                            className='deals__countdown__card text-center p-3 sm:p-4 bg-white rounded-lg shadow-lg'
                             variants={cardVariants}
                             whileHover="hover"
                             style={{
@@ -214,16 +214,17 @@ const Deals = () => {
                                     ...numberVariants.transition,
                                     delay: 0
                                 }}
+                                className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1'
                             >
                                 {String(timeLeft.days).padStart(2, '0')}
                             </motion.h4>
-                            <p>Days</p>
+                            <p className='text-xs sm:text-sm text-gray-600'>Days</p>
                         </motion.div>
                     </AnimatePresence>
 
                     <AnimatePresence mode="wait">
                         <motion.div 
-                            className='deals__countdown__card'
+                            className='deals__countdown__card text-center p-3 sm:p-4 bg-white rounded-lg shadow-lg'
                             variants={cardVariants}
                             whileHover="hover"
                             style={{
@@ -254,16 +255,17 @@ const Deals = () => {
                                     ...numberVariants.transition,
                                     delay: 0.2
                                 }}
+                                className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1'
                             >
                                 {String(timeLeft.hours).padStart(2, '0')}
                             </motion.h4>
-                            <p>Hours</p>
+                            <p className='text-xs sm:text-sm text-gray-600'>Hours</p>
                         </motion.div>
                     </AnimatePresence>
 
                     <AnimatePresence mode="wait">
                         <motion.div 
-                            className='deals__countdown__card'
+                            className='deals__countdown__card text-center p-3 sm:p-4 bg-white rounded-lg shadow-lg'
                             variants={cardVariants}
                             whileHover="hover"
                             style={{
@@ -294,16 +296,17 @@ const Deals = () => {
                                     ...numberVariants.transition,
                                     delay: 0.4
                                 }}
+                                className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1'
                             >
                                 {String(timeLeft.minutes).padStart(2, '0')}
                             </motion.h4>
-                            <p>Mins</p>
+                            <p className='text-xs sm:text-sm text-gray-600'>Mins</p>
                         </motion.div>
                     </AnimatePresence>
 
                     <AnimatePresence mode="wait">
                         <motion.div 
-                            className='deals__countdown__card'
+                            className='deals__countdown__card text-center p-3 sm:p-4 bg-white rounded-lg shadow-lg'
                             variants={cardVariants}
                             whileHover="hover"
                             style={{
@@ -334,10 +337,11 @@ const Deals = () => {
                                     ...numberVariants.transition,
                                     delay: 0.6
                                 }}
+                                className='text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1'
                             >
                                 {String(timeLeft.seconds).padStart(2, '0')}
                             </motion.h4>
-                            <p>Secs</p>
+                            <p className='text-xs sm:text-sm text-gray-600'>Secs</p>
                         </motion.div>
                     </AnimatePresence>
                 </motion.div>

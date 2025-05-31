@@ -5,6 +5,7 @@ const TrackOrder = () => {
     const [orderNumber, setOrderNumber] = useState('');
     const [searchOrderNumber, setSearchOrderNumber] = useState('');
     const [hasSearched, setHasSearched] = useState(false);
+    const [showContactPopup, setShowContactPopup] = useState(false);
 
     const { data: trackingData, isLoading, error, refetch } = useFetchOrderByNumberQuery(searchOrderNumber, {
         skip: !searchOrderNumber
@@ -92,6 +93,15 @@ const TrackOrder = () => {
         return colors[color] || colors.blue;
     };
 
+    const copyEmailToClipboard = () => {
+        navigator.clipboard.writeText('sksports1975@gmail.com');
+        // You could add a toast notification here
+    };
+
+    const openEmailClient = () => {
+        window.location.href = 'mailto:sksports1975@gmail.com?subject=Order Support Query';
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
@@ -154,9 +164,15 @@ const TrackOrder = () => {
                                 <p className="text-gray-600 mb-4">
                                     We couldn't find an order with the number "{searchOrderNumber}".
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 mb-6">
                                     Please check your order number and try again, or contact our support team if you need assistance.
                                 </p>
+                                <button 
+                                    onClick={() => setShowContactPopup(true)}
+                                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                >
+                                    Contact Support
+                                </button>
                             </div>
                         )}
 
@@ -291,9 +307,65 @@ const TrackOrder = () => {
                         <p className="text-gray-600 mb-4">
                             Can't find your order number? Check your email confirmation or contact our support team.
                         </p>
-                        <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <button 
+                            onClick={() => setShowContactPopup(true)}
+                            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
                             Contact Support
                         </button>
+                    </div>
+                )}
+
+                {/* Contact Support Popup */}
+                {showContactPopup && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 relative">
+                            <button 
+                                onClick={() => setShowContactPopup(false)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                            >
+                                ×
+                            </button>
+                            
+                            <div className="text-center">
+                                <div className="text-6xl mb-4">📧</div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Contact Support</h3>
+                                <p className="text-gray-600 mb-6">
+                                    Need help with your order? Send us an email with your query and we'll get back to you as soon as possible.
+                                </p>
+                                
+                                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                                    <p className="text-sm text-gray-500 mb-2">Email us at:</p>
+                                    <div className="flex items-center justify-center space-x-2">
+                                        <span className="text-lg font-mono text-blue-600 bg-white px-3 py-2 rounded border">
+                                            sksports1975@gmail.com
+                                        </span>
+                                        <button 
+                                            onClick={copyEmailToClipboard}
+                                            className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
+                                            title="Copy email"
+                                        >
+                                            📋
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                    <button 
+                                        onClick={openEmailClient}
+                                        className="w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                                    >
+                                        Open Email Client
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowContactPopup(false)}
+                                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

@@ -8,7 +8,8 @@ const OrderSummary = ({ onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { selectedItems, totalPrice, delivery, grandTotal } = useSelector((store) => store.cart);
+    // Use Redux state instead of manual calculation
+    const { selectedItems, totalPrice: subtotal, delivery: deliveryCharges, grandTotal } = useSelector((store) => store.cart);
 
     const handleClearCart = () => {
         dispatch(clearCart());
@@ -29,9 +30,9 @@ const OrderSummary = ({ onClose }) => {
         >
             <h2 className='text-2xl font-semibold text-gray-800 mb-4'>📦 Order Summary</h2>
             <p className='text-gray-700'>Items Quantity: <span className='font-medium'>{selectedItems}</span></p>
-            <p className='text-gray-700'>Subtotal: <span className='font-medium'>Rs. {totalPrice}</span></p>
-            <p className='text-gray-700'>Delivery Charges: <span className='font-medium'>Rs. {delivery}</span></p>
-            <h3 className='text-lg font-bold mt-3'>Grand Total: <span className='text-green-600'>Rs. {grandTotal}</span></h3>
+            <p className='text-gray-700'>Subtotal: <span className='font-medium'>Rs. {subtotal.toLocaleString()}</span></p>
+            <p className='text-gray-700'>Delivery Charges: <span className='font-medium'>Rs. {deliveryCharges.toLocaleString()}</span></p>
+            <h3 className='text-lg font-bold mt-3 border-t pt-3'>Grand Total: <span className='text-green-600'>Rs. {grandTotal.toLocaleString()}</span></h3>
             
             <div className='mt-5 flex flex-col gap-3'>
                 <motion.button 

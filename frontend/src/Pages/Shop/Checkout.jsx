@@ -9,7 +9,8 @@ import emailService from '../../services/emailService';
 
 const Checkout = () => {
   const cartItems = useSelector((state) => state.cart.items);
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  // Use Redux state for pricing instead of manual calculation
+  const { totalPrice: subtotal, delivery: deliveryCharges, grandTotal: totalPrice } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -72,7 +73,9 @@ const Checkout = () => {
         shippingAddress,
         cartItems,
         totalPrice,
-        paymentMethod
+        paymentMethod,
+        subtotal,
+        deliveryCharges
       );
 
       if (result.success) {
@@ -137,6 +140,9 @@ const Checkout = () => {
       formData.append('customerInfo', JSON.stringify(customerInfo));
       formData.append('shippingAddress', JSON.stringify(transformedAddress));
       formData.append('orderItems', JSON.stringify(cartItems));
+      // Send breakdown to backend
+      formData.append('subtotal', subtotal.toString());
+      formData.append('deliveryCharges', deliveryCharges.toString());
       formData.append('totalPrice', totalPrice.toString());
       formData.append('paymentMethod', paymentMethod);
       if (paymentMethod === 'Pay Now' && paymentScreenshot)
@@ -500,8 +506,18 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t mt-6 pt-4">
-              <div className="flex justify-between font-bold text-gray-900 text-lg">
+            
+            {/* Updated pricing breakdown */}
+            <div className="border-t mt-6 pt-4 space-y-2">
+              <div className="flex justify-between text-gray-700">
+                <span>Subtotal:</span>
+                <span>Rs. {subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-gray-700">
+                <span>Delivery Charges:</span>
+                <span>Rs. {deliveryCharges.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between font-bold text-gray-900 text-lg border-t pt-2">
                 <span>Total:</span>
                 <span>Rs. {totalPrice.toLocaleString()}</span>
               </div>

@@ -266,18 +266,18 @@ const Blogs = () => {
 
   if (loading) {
     return (
-      <section className='blog__container section__container'>
-        <h2 className='section__header'>Inside the Game</h2>
-        <p className='section__subheader mb-12'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
+      <section className='blog__container section__container py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8'>
+        <h2 className='section__header text-2xl sm:text-3xl lg:text-4xl text-center mb-4'>Inside the Game</h2>
+        <p className='section__subheader text-center mb-8 sm:mb-12 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
         
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-12'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-12'>
           {[...Array(4)].map((_, index) => (
             <div key={index} className='blog__card animate-pulse'>
-              <div className='bg-gray-300 h-48 w-full rounded-t-lg'></div>
-              <div className='blog__card__content p-4'>
-                <div className='h-4 bg-gray-300 rounded mb-2'></div>
-                <div className='h-6 bg-gray-300 rounded mb-2'></div>
-                <div className='h-4 bg-gray-300 rounded w-1/2'></div>
+              <div className='bg-gray-300 h-40 sm:h-48 w-full rounded-t-lg'></div>
+              <div className='blog__card__content p-3 sm:p-4'>
+                <div className='h-3 sm:h-4 bg-gray-300 rounded mb-2'></div>
+                <div className='h-4 sm:h-6 bg-gray-300 rounded mb-2'></div>
+                <div className='h-3 sm:h-4 bg-gray-300 rounded w-1/2'></div>
               </div>
             </div>
           ))}
@@ -288,14 +288,14 @@ const Blogs = () => {
 
   if (error) {
     return (
-      <section className='blog__container section__container'>
-        <h2 className='section__header'>Inside the Game</h2>
-        <p className='section__subheader mb-12'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
-        <div className='text-center py-12'>
-          <p className='text-red-500 mb-4'>{error}</p>
+      <section className='blog__container section__container py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8'>
+        <h2 className='section__header text-2xl sm:text-3xl lg:text-4xl text-center mb-4'>Inside the Game</h2>
+        <p className='section__subheader text-center mb-8 sm:mb-12 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
+        <div className='text-center py-8 sm:py-12'>
+          <p className='text-red-500 mb-4 text-sm sm:text-base'>{error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors'
+            className='bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded hover:bg-blue-700 transition-colors text-sm sm:text-base'
           >
             Try Again
           </button>
@@ -305,12 +305,11 @@ const Blogs = () => {
   }
 
   return (
-    <section className='blog__container section__container'>
-      <h2 className='section__header'>Inside the Game</h2>
-      <p className='section__subheader mb-12'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
+    <section className='blog__container section__container py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8'>
+      <h2 className='section__header text-2xl sm:text-3xl lg:text-4xl text-center mb-4'>Inside the Game</h2>
+      <p className='section__subheader text-center mb-8 sm:mb-12 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto'>Your Ultimate Destination for Expert Tips, Gear Reviews, and the Latest Sports Trends</p>
       
-
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-12'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-12'>
         {blogs.map((blog) => (
           <article 
             key={blog.id} 
@@ -321,19 +320,19 @@ const Blogs = () => {
               <img 
                 src={blog.imageUrl} 
                 alt={blog.title}
-                className='w-full h-48 object-cover transition-transform duration-300 hover:scale-110'
+                className='w-full h-40 sm:h-48 lg:h-52 object-cover transition-transform duration-300 hover:scale-110'
                 loading="lazy"
               />
             </div>
 
-            <div className='blog__card__content p-5'>
-              <h6 className='text-blue-600 font-semibold text-sm mb-2 uppercase tracking-wide'>
+            <div className='blog__card__content p-3 sm:p-4 lg:p-5'>
+              <h6 className='text-blue-600 font-semibold text-xs sm:text-sm mb-2 uppercase tracking-wide'>
                 {blog.subtitle}
               </h6>
-              <h4 className='font-bold text-lg mb-3 leading-tight hover:text-blue-600 transition-colors line-clamp-2'>
+              <h4 className='font-bold text-sm sm:text-base lg:text-lg mb-2 sm:mb-3 leading-tight hover:text-blue-600 transition-colors line-clamp-2'>
                 {blog.title}
               </h4>
-              <p className='text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3'>
+              <p className='text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed line-clamp-3'>
                 {blog.excerpt}
               </p>
             </div>
