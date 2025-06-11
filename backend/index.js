@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -10,9 +11,11 @@ const productRoutes = require("./src/Routes/Products");
 const orderRoutes = require("./src/Routes/Orders");
 
 const app = express();
+// Removed: const __dirname = path.resolve(); - __dirname is already available!
 
 // Middleware
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cookieParser());
@@ -30,9 +33,9 @@ app.use("/api/auth", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
-// Test route
-app.get("/", (req, res) => {
-    res.send("Hello World!");
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
 });
 
 // Connect to MongoDB & start server
