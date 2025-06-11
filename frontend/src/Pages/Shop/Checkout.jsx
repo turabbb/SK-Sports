@@ -31,20 +31,20 @@ const Checkout = () => {
   const bankAccounts = [
     {
       bankName: "Meezan Bank",
-      accountTitle: "Your Business Name",
-      accountNumber: "11223344556677",
-      iban: "PK24MEZN0000112233445566"
+      accountTitle: "Mohammad Omer",
+      accountNumber: "02010103503498",
+      iban: "PK02MEZN0002010103503498"
     },
     {
       bankName: "EasyPaisa",
-      accountTitle: "Your Business Name",
-      accountNumber: "03001234567",
+      accountTitle: "Khalid Zubair",
+      accountNumber: "03202440328",
       iban: "Not Required"
     },
     {
       bankName: "JazzCash",
-      accountTitle: "Your Business Name", 
-      accountNumber: "03007654321",
+      accountTitle: "Khalid Zubair", 
+      accountNumber: "03202440328",
       iban: "Not Required"
     }
   ];
