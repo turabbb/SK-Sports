@@ -14,7 +14,13 @@ const app = express();
 // Removed: const __dirname = path.resolve(); - __dirname is already available!
 
 // Middleware
-app.use(cors({ origin: "https://sk-sportspk.onrender.com", credentials: true }));
+app.use(cors({ 
+  origin: [
+    "https://sksportspk.com",
+    "https://www.sksportspk.com"
+  ], 
+  credentials: true 
+}));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
@@ -28,17 +34,11 @@ app.use(fileUpload({
   abortOnLimit: true
 }));
 
-// Debug middleware for testing frontend
-app.use((req, res, next) => {
-    console.log(`Request: ${req.method} ${req.path}`);
-    next();
-});
 
 // Routes
 app.use("/api/auth", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-
 
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
