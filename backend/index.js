@@ -28,6 +28,12 @@ app.use(fileUpload({
   abortOnLimit: true
 }));
 
+// Debug middleware
+app.use((req, res, next) => {
+    console.log(`Request: ${req.method} ${req.path}`);
+    next();
+});
+
 // Routes
 app.use("/api/auth", userRoutes);
 app.use("/api/products", productRoutes);
