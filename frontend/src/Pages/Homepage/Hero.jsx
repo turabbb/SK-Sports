@@ -1,31 +1,31 @@
 import React from 'react';
-import card1 from '../../Assets/card1.png';
 import card2 from '../../Assets/card2.png';
-import card3 from '../../Assets/card3.jpg';
+import IPL from '../../Assets/IPL.webp'
+import BigBash from '../../Assets/BigBash.webp'
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const cards = [
     {
       id: 1,
-      image: card1,
+      image: BigBash,
       trend: 'Trending 2025',
-      title: 'Champions Trophy Kits',
-      link: '/sports?category=SportsWear Shirts'
+      title: 'BigBash League Jerseys',
+      link: '/sports?category=Big Bash League Jerseys'
     },
     {
       id: 2,
       image: card2,
       trend: 'Season 10',
-      title: 'PSL Kits',
-      link: '/sports?category=SportsWear Shirts'
+      title: 'PSL Jerseys',
+      link: '/sports?category=PSL Jerseys'
     },
     {
       id: 3,
-      image: card3,
+      image: IPL,
       trend: 'All time favourite',
-      title: 'Football Kits',
-      link: '/sports?category=SportsWear Shirts'
+      title: 'IPL Jerseys',
+      link: '/sports?category=IPL Jerseys'
     },
   ];
 

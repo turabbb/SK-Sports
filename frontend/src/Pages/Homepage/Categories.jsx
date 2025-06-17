@@ -10,13 +10,13 @@ const Categories = () => {
     { 
       id: 1, 
       name: 'Cricket', 
-      path: '/sports?categories=Hard Ball Bat,Tape Ball Bat,Pads,Thigh Pads,Gloves,Helmet,Guard,Tape Ball,Hard Ball,Kit Bags,Cricket Spikes', 
+      path: '/sports?categories=Hard Ball Bat,Tape Ball Bat,Pads,Thigh Pads,Batting Gloves,Keeping Gloves,Helmet,Guard,Tape Ball,Hard Ball,Kit Bags,Cricket Spikes', 
       image: cat1 
     },
     { 
       id: 2, 
       name: 'Football', 
-      path: '/sports?categories=Football Boots,Football', 
+      path: '/sports?categories=Football Boots,Football,Football Jerseys', 
       image: cat2 
     },
     { 

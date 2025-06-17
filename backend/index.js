@@ -11,7 +11,6 @@ const productRoutes = require("./src/Routes/Products");
 const orderRoutes = require("./src/Routes/Orders");
 
 const app = express();
-// Removed: const __dirname = path.resolve(); - __dirname is already available!
 
 // Middleware
 app.use(cors({ 
