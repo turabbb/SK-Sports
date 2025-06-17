@@ -5,7 +5,8 @@ const sizeMappings = {
     // Cricket Protective Gear (Adult sizes)
     'Pads': [],
     'Thigh Pads': [],
-    'Gloves': ['Left Hand', 'Right Hand'],
+    'Batting Gloves': ['Left Hand', 'Right Hand'],
+    'Keeping Gloves': [],
     'Helmet': [],
     'Guard': [],
     
@@ -21,6 +22,10 @@ const sizeMappings = {
     'Zippers': ['S', 'M', 'L', 'XL', 'XXL'],
     'TrackSuits': ['S', 'M', 'L', 'XL', 'XXL'],
     'Shorts': ['S', 'M', 'L', 'XL', 'XXL'],
+    'PSL Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'], 
+    'IPL Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    'Big Bash League Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'], 
+    'Football Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     
     // Accessories with sizes
     'Caps': [],
