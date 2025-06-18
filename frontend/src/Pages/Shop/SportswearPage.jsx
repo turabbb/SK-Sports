@@ -6,7 +6,7 @@ import { useFetchAllProductsQuery } from '../../Redux/Features/Products/products
 const filters = {
     categories: [
         'All', 'Hard Ball Bat', 'Tape Ball Bat', 'Pads', 'Thigh Pads', 'Batting Gloves', 'Keeping Gloves', 'Helmet', 'Guard', 'Tape Ball', 'Hard Ball', 'Kit Bags',
-        'Cricket Spikes', 'Football Boots', 'Football', 'SportsWear Shirts', 'PSL Jerseys', 'IPL Jerseys', 'Big Bash League Jerseys', 'Football Jerseys'
+        'Boots', 'Football', 'SportsWear Shirts', 'PSL Jerseys', 'IPL Jerseys', 'Big Bash League Jerseys', 'Football Jerseys'
     ],
 
     priceRange: [

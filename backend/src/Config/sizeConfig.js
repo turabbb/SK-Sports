@@ -11,8 +11,7 @@ const sizeMappings = {
     'Guard': [],
     
     // Footwear (US sizes)
-    'Cricket Spikes': ['7', '8', '9', '10', '11', '12'],
-    'Football Boots': ['7', '8', '9', '10', '11', '12'],
+    'Boots': ['7', '8', '9', '10', '11', '12'],
     
     // Apparel (Clothing sizes)
     'SportsWear Shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
