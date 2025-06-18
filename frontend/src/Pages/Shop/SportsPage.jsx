@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCards from './ProductCards';
 import SportsPageFilter from './SportsPageFilter';
+import Pagination from '../../Components/Pagination';
 import { useFetchAllProductsQuery } from '../../Redux/Features/Products/products';
 
 const filters = {
@@ -173,11 +174,10 @@ const SportsPage = () => {
                             </div>
                             <i className={`ri-arrow-${showMobileFilters ? 'up' : 'down'}-s-line text-xl text-gray-500 transition-transform`}></i>
                         </button>
-                        
+
                         {/* Mobile Filter Panel */}
-                        <div className={`mt-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-300 overflow-hidden ${
-                            showMobileFilters ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-                        }`}>
+                        <div className={`mt-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-300 overflow-hidden ${showMobileFilters ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+                            }`}>
                             <div className='p-4 space-y-6'>
                                 {/* Mobile Categories Filter */}
                                 <div>
@@ -248,45 +248,12 @@ const SportsPage = () => {
                         </h3>
                         <ProductCards products={products} />
 
-                        {totalPages > 1 && (
-                            <div className='mt-8 sm:mt-10 flex justify-center items-center gap-1 sm:gap-2 flex-wrap'>
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    className='px-3 sm:px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base'
-                                    disabled={currentPage === 1}
-                                >
-                                    <span className='hidden sm:inline'>Previous</span>
-                                    <span className='sm:hidden'>Prev</span>
-                                </button>
-
-                                <div className='flex gap-1 sm:gap-2'>
-                                    {
-                                        [...Array(totalPages)].map((_, index) => (
-                                            <button
-                                                onClick={() => handlePageChange(index + 1)}
-                                                key={index}
-                                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 text-sm sm:text-base
-                                                    ${currentPage === index + 1
-                                                        ? 'bg-primary text-white scale-110 shadow-lg'
-                                                        : 'bg-gray-200 text-gray-700 hover:bg-primary hover:text-white hover:scale-105 shadow-md'
-                                                    }`}
-                                            >
-                                                {index + 1}
-                                            </button>
-                                        ))
-                                    }
-                                </div>
-
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    className='px-3 sm:px-4 py-2 rounded-full bg-gray-200 text-gray-700 hover:bg-primary hover:text-white transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base'
-                                    disabled={currentPage === totalPages}
-                                >
-                                    <span className='hidden sm:inline'>Next</span>
-                                    <span className='sm:hidden'>Next</span>
-                                </button>
-                            </div>
-                        )}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                            maxVisiblePages={5} // You can adjust this number
+                        />
                     </div>
                 </div>
             </section>
