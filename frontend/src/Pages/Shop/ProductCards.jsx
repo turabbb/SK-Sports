@@ -11,6 +11,7 @@ const ProductCards = ({ products }) => {
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
   }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
       {products.map((product, index) => (
@@ -18,9 +19,12 @@ const ProductCards = ({ products }) => {
           <div className="relative">
             <Link to={`/sports/${product._id}`}>
               <img
-                src={product.image}
+                src={product.image?.[0] || '/placeholder-image.jpg'}
                 alt="product image"
                 className="h-64 w-full object-cover rounded-lg hover:scale-105 transition-all duration-300"
+                onError={(e) => {
+                  e.target.src = '/placeholder-image.jpg';
+                }}
               />
             </Link>
           </div>
