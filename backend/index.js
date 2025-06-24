@@ -32,7 +32,7 @@ app.use(fileUpload({
 }));
 
 
-// Routes
+// Routes for user authentication, products, and orders
 app.use("/api/auth", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
