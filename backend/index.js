@@ -12,7 +12,7 @@ const orderRoutes = require("./src/Routes/Orders");
 
 const app = express();
 
-// Middleware
+// Middlewares for CORS, static files, JSON parsing, cookie parsing, and file uploads
 app.use(cors({ 
   origin: [
     "https://sksportspk.com",
@@ -27,9 +27,7 @@ app.use(cookieParser());
 app.use(fileUpload({ 
   useTempFiles: true, 
   tempFileDir: '/tmp/',
-  // Limit uploads to 10MB
   limits: { fileSize: 10 * 1024 * 1024 }, 
-  // Reject on aborted connections 
   abortOnLimit: true
 }));
 
