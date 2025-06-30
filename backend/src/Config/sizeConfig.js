@@ -25,6 +25,7 @@ const sizeMappings = {
     'IPL Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     'Big Bash League Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'], 
     'Football Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    'Basketball Jerseys' : ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     
     // Accessories with sizes
     'Caps': [],
