@@ -78,11 +78,13 @@ const CasualPage = () => {
         setCurrentPage(1);
     }
 
-    const handlePageChange = (page) => {
-        if (page > 0 && page <= totalPages) {
-            setCurrentPage(page);
-        }
+const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+        setCurrentPage(page);
+        // Scroll to top when page changes
+        window.scrollTo(0, 0);
     }
+}
 
     if (isLoading) return <div className='flex justify-center items-center h-screen text-base sm:text-lg'>Loading...</div>;
     if (error) return <div className='flex justify-center items-center h-screen text-base sm:text-lg'>Error loading products</div>;
