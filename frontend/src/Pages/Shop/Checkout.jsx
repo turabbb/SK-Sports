@@ -27,6 +27,19 @@ const Checkout = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState('');
 
+  // Error state for field validation
+  const [errors, setErrors] = useState({});
+
+  // Pakistani provinces for dropdown
+  const pakistaniProvinces = [
+    "Punjab",
+    "Sindh", 
+    "KPK",
+    "Balochistan",
+    "AJK",
+    "Islamabad"
+  ];
+
   // Pakistani payment methods
   const bankAccounts = [
     {
@@ -48,6 +61,62 @@ const Checkout = () => {
       iban: "Not Required"
     }
   ];
+
+  // Clear error for specific field
+  const clearError = (fieldName) => {
+    if (errors[fieldName]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+  };
+
+  // Validate all fields
+  const validateFields = () => {
+    const newErrors = {};
+
+    // Customer info validation
+    if (!customerInfo.name.trim()) {
+      newErrors.name = 'Full name is required';
+    }
+    if (!customerInfo.email.trim()) {
+      newErrors.email = 'Email address is required';
+    } else if (!/\S+@\S+\.\S+/.test(customerInfo.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    if (!customerInfo.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    }
+
+    // Shipping address validation
+    if (!shippingAddress.street.trim()) {
+      newErrors.street = 'Street address is required';
+    }
+    if (!shippingAddress.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    if (!shippingAddress.province) {
+      newErrors.province = 'Please select a province';
+    }
+    if (!shippingAddress.zip.trim()) {
+      newErrors.zip = 'ZIP code is required';
+    }
+
+    // Payment validation
+    if (paymentMethod === 'Pay Now' && !paymentScreenshot) {
+      newErrors.paymentScreenshot = 'Payment screenshot is required';
+    }
+
+    // Cart validation
+    if (cartItems.length === 0) {
+      newErrors.cart = 'Your cart is empty';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const copyToClipboard = async (text, accountType) => {
     try {
@@ -119,15 +188,16 @@ const Checkout = () => {
 
   const handleOrderSubmit = async () => {
     try {
-      // Validation
-      if (!customerInfo.name || !customerInfo.email || !customerInfo.phone)
-        return toast.error('Please fill in all contact information');
-      if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.province || !shippingAddress.zip)
-        return toast.error('Please fill in all shipping address fields');
-      if (paymentMethod === 'Pay Now' && !paymentScreenshot)
-        return toast.error('Please upload a payment screenshot');
-      if (cartItems.length === 0)
-        return toast.error('Your cart is empty');
+      // Validate all fields
+      if (!validateFields()) {
+        toast.error('Please fill in all required fields correctly');
+        // Scroll to first error
+        const firstErrorElement = document.querySelector('.border-red-500');
+        if (firstErrorElement) {
+          firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
 
       // Prepare order data
       const formData = new FormData();
@@ -268,27 +338,74 @@ const Checkout = () => {
             <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                  className="input"
-                />
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  value={customerInfo.email}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                  className="input"
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                  className="input md:col-span-2"
-                />
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={customerInfo.name}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                    onFocus={() => clearError('name')}
+                    className={`input w-full ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.name && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.name}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div>
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={customerInfo.email}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                    onFocus={() => clearError('email')}
+                    className={`input w-full ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.email && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.email}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div className="md:col-span-2">
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={customerInfo.phone}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                    onFocus={() => clearError('phone')}
+                    className={`input w-full ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.phone && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.phone}
+                    </motion.p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -296,43 +413,113 @@ const Checkout = () => {
             <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Shipping Address</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                  placeholder="Street Address"
-                  value={shippingAddress.street}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
-                  className="input md:col-span-2"
-                />
-                <input
-                  placeholder="City"
-                  value={shippingAddress.city}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
-                  className="input"
-                />
-                <input
-                  placeholder="Province"
-                  value={shippingAddress.province}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, province: e.target.value })}
-                  className="input"
-                />
-                <input
-                  placeholder="ZIP Code"
-                  value={shippingAddress.zip}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, zip: e.target.value })}
-                  className="input"
-                />
-                <select
-                  value={shippingAddress.country}
-                  onChange={(e) => setShippingAddress({ ...shippingAddress, country: e.target.value })}
-                  className="input md:col-span-2"
-                >
-                  {[
-                    "Pakistan", "India", "United States", "United Kingdom", "Canada",
-                    "Australia", "Germany", "France", "China", "Japan",
-                    "UAE", "Saudi Arabia", "Bangladesh", "Nepal", "Sri Lanka"
-                  ].map((country) => (
-                    <option key={country} value={country}>{country}</option>
-                  ))}
-                </select>
+                <div className="md:col-span-2">
+                  <input
+                    placeholder="Street Address"
+                    value={shippingAddress.street}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
+                    onFocus={() => clearError('street')}
+                    className={`input w-full ${errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.street && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.street}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div>
+                  <input
+                    placeholder="City"
+                    value={shippingAddress.city}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
+                    onFocus={() => clearError('city')}
+                    className={`input w-full ${errors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.city && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.city}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div>
+                  <select
+                    value={shippingAddress.province}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, province: e.target.value })}
+                    onFocus={() => clearError('province')}
+                    className={`input w-full ${errors.province ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  >
+                    <option value="">Select Province</option>
+                    {pakistaniProvinces.map((province) => (
+                      <option key={province} value={province}>{province}</option>
+                    ))}
+                  </select>
+                  {errors.province && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.province}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div>
+                  <input
+                    placeholder="ZIP Code"
+                    value={shippingAddress.zip}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, zip: e.target.value })}
+                    onFocus={() => clearError('zip')}
+                    className={`input w-full ${errors.zip ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                  />
+                  {errors.zip && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {errors.zip}
+                    </motion.p>
+                  )}
+                </div>
+                
+                <div className="md:col-span-2">
+                  <select
+                    value={shippingAddress.country}
+                    onChange={(e) => setShippingAddress({ ...shippingAddress, country: e.target.value })}
+                    className="input w-full border-gray-300"
+                  >
+                    {[
+                      "Pakistan", "India", "United States", "United Kingdom", "Canada",
+                      "Australia", "Germany", "France", "China", "Japan",
+                      "UAE", "Saudi Arabia", "Bangladesh", "Nepal", "Sri Lanka"
+                    ].map((country) => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -460,13 +647,44 @@ const Checkout = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setPaymentScreenshot(e.target.files[0])}
-                      className="w-full border p-2 rounded-md"
+                      onChange={(e) => {
+                        setPaymentScreenshot(e.target.files[0]);
+                        clearError('paymentScreenshot');
+                      }}
+                      className={`w-full border p-2 rounded-md ${errors.paymentScreenshot ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
                     />
+                    {errors.paymentScreenshot && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {errors.paymentScreenshot}
+                      </motion.p>
+                    )}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Cart Error Message */}
+            {errors.cart && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-500 rounded-lg p-4"
+              >
+                <p className="text-red-500 text-sm flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {errors.cart}
+                </p>
+              </motion.div>
+            )}
 
             {/* Place Order Button */}
             <div className="flex justify-end">
