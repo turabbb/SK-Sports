@@ -27,19 +27,6 @@ const Checkout = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState('');
 
-  // Error state for field validation
-  const [errors, setErrors] = useState({});
-
-  // Pakistani provinces for dropdown
-  const pakistaniProvinces = [
-    "Punjab",
-    "Sindh", 
-    "KPK",
-    "Balochistan",
-    "AJK",
-    "Islamabad"
-  ];
-
   // Pakistani payment methods
   const bankAccounts = [
     {

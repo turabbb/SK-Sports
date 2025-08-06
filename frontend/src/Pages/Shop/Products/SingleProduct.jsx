@@ -26,6 +26,8 @@ const SingleProduct = () => {
 
     const [relatedProducts, setRelatedProducts] = useState([]);
 
+    
+
     // Fetch sizes based on product category or use product's sizes
     useEffect(() => {
         const fetchSizes = async () => {
@@ -144,6 +146,20 @@ const SingleProduct = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [id]);
+
+    useEffect(() => {
+    if (window.fbq && singleProduct && singleProduct._id) {
+        window.fbq('track', 'ViewContent', {
+            content_name: singleProduct.name,
+            content_ids: [singleProduct._id],
+            content_type: 'product',
+            value: singleProduct.price || 0,
+            currency: 'PKR',
+            category: singleProduct.category,
+        });
+        console.log('[Meta Pixel] ViewContent event fired for:', singleProduct.name);
+    }
+}, [singleProduct]);
 
     if (isLoading) return <div className="section__container p-4 sm:p-6">Loading...</div>;
     if (error) return <div className="section__container p-4 sm:p-6">Error loading product: {error.message || 'Unknown error'}</div>;
