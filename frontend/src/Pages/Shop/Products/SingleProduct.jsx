@@ -26,7 +26,7 @@ const SingleProduct = () => {
 
     const [relatedProducts, setRelatedProducts] = useState([]);
 
-    
+
 
     // Fetch sizes based on product category or use product's sizes
     useEffect(() => {
@@ -86,25 +86,25 @@ const SingleProduct = () => {
         const handleMouseMove = (e) => {
             const img = document.getElementById('zoom-img');
             if (!img) return;
-    
+
             const rect = img.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 100;
             const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
+
             img.style.transformOrigin = `${x}% ${y}%`;
         };
-    
+
         if (isModalOpen) {
             window.addEventListener('mousemove', handleMouseMove);
         } else {
             window.removeEventListener('mousemove', handleMouseMove);
         }
-    
+
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
         };
     }, [isModalOpen]);
-    
+
 
     const handleAddToCart = (product) => {
         // Only check for size if the product category requires sizes
@@ -112,7 +112,7 @@ const SingleProduct = () => {
             alert('Please select a size before adding to cart');
             return;
         }
-        
+
         const cartItem = {
             _id: product._id,
             name: product.name,
@@ -125,9 +125,9 @@ const SingleProduct = () => {
             quantity: parseInt(quantity), // Ensure it's a number
             selectedSize: selectedSize || null, // null for products without sizes
         };
-        
+
         console.log('Adding to cart:', cartItem); // Debug log
-        
+
         dispatch(addToCart(cartItem));
     };
 
@@ -148,18 +148,18 @@ const SingleProduct = () => {
     }, [id]);
 
     useEffect(() => {
-    if (window.fbq && singleProduct && singleProduct._id) {
-        window.fbq('track', 'ViewContent', {
-            content_name: singleProduct.name,
-            content_ids: [singleProduct._id],
-            content_type: 'product',
-            value: singleProduct.price || 0,
-            currency: 'PKR',
-            category: singleProduct.category,
-        });
-        console.log('[Meta Pixel] ViewContent event fired for:', singleProduct.name);
-    }
-}, [singleProduct]);
+        if (window.fbq && singleProduct && singleProduct._id) {
+            window.fbq('track', 'ViewContent', {
+                content_name: singleProduct.name,
+                content_ids: [singleProduct._id],
+                content_type: 'product',
+                value: singleProduct.price || 0,
+                currency: 'PKR',
+                category: singleProduct.category,
+            });
+            console.log('[Meta Pixel] ViewContent event fired for:', singleProduct.name);
+        }
+    }, [singleProduct]);
 
     if (isLoading) return <div className="section__container p-4 sm:p-6">Loading...</div>;
     if (error) return <div className="section__container p-4 sm:p-6">Error loading product: {error.message || 'Unknown error'}</div>;
@@ -294,7 +294,7 @@ const SingleProduct = () => {
                         {availableSizes.length > 0 && (
                             <div className="space-y-3">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Size: 
+                                    Size:
                                     {sizesLoading && <span className="ml-2 text-xs text-gray-500">(Loading sizes...)</span>}
                                 </label>
                                 <div className="flex flex-wrap gap-2">
@@ -352,11 +352,10 @@ const SingleProduct = () => {
                                     handleAddToCart(singleProduct);
                                 }}
                                 disabled={sizesLoading || (availableSizes.length > 0 && !selectedSize)}
-                                className={`flex-1 py-2 px-4 sm:px-6 rounded-md transition-colors text-sm sm:text-base font-medium ${
-                                    sizesLoading || (availableSizes.length > 0 && !selectedSize)
+                                className={`flex-1 py-2 px-4 sm:px-6 rounded-md transition-colors text-sm sm:text-base font-medium ${sizesLoading || (availableSizes.length > 0 && !selectedSize)
                                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                         : 'bg-primary text-white hover:bg-primary-dark'
-                                }`}
+                                    }`}
                             >
                                 {sizesLoading ? 'Loading...' : 'ADD TO CART'}
                             </button>

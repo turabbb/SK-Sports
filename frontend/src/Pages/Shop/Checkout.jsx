@@ -27,6 +27,21 @@ const Checkout = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState('');
 
+  useEffect(() => {
+    if (window.fbq) {
+      window.fbq('track', 'InitiateCheckout', {
+        contents: cartItems.map(item => ({
+          id: item._id,
+          quantity: item.quantity,
+          item_price: item.price
+        })),
+        content_type: 'product',
+        value: cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+        currency: 'PKR'
+      });
+    }
+  }, [cartItems]);
+
   // Pakistani payment methods
   const bankAccounts = [
     {
